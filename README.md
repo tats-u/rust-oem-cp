@@ -37,7 +37,7 @@ Add `oem_cp` to the dependencies in `Cargo.toml` in your projects.
 ```toml
 [dependencies]
 # *snip*
-oem_cp = "0.1.0"
+oem_cp = "0.1.1"
 # *snip*
 ```
 
