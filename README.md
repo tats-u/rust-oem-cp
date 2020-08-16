@@ -1,5 +1,10 @@
 # Rust library for OEM Code pages
 
+![CI (master)](<https://github.com/tats-u/rust-oem-cp/workflows/CI%20(master)/badge.svg>)
+![CI (Release)](<https://github.com/tats-u/rust-oem-cp/workflows/CI%20(Release)/badge.svg>)
+[![oem_cp at crates.io](https://img.shields.io/crates/v/oem_cp.svg)](https://crates.io/crates/oem_cp)
+[![oem_cp at docs.rs](https://docs.rs/oem_cp/badge.svg)](https://docs.rs/oem_cp)
+
 This library handles many SBCS (single byte character sets) that are used as OEM code pages. OEM code pages are used for encoding file names in ZIP archives and characters in the terminal in Windows today.
 
 # Supported code pages
@@ -24,6 +29,17 @@ This library handles many SBCS (single byte character sets) that are used as OEM
 | 874       | ANSI/OEM Thai (ISO 8859-11); Thai (Windows)      |
 
 Notes are quoted from https://docs.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
+
+# How to use
+
+Add `oem_cp` to the dependencies in `Cargo.toml` in your projects.
+
+```toml
+[dependencies]
+# *snip*
+oem_cp = "0.1.0"
+# *snip*
+```
 
 # Examples
 

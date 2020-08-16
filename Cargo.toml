@@ -6,6 +6,7 @@ edition = "2018"
 categories = ["encoding"]
 keywords = ["encoding", "charset"]
 license = "MIT"
+description ="Rust library that handles OEM code pages (e.g. CP{437,737,850}) for single byte character sets"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
