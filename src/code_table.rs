@@ -1,7 +1,7 @@
 //! Code table
 //! Generated at 2020-08-16T04:50:20+00:00
 use super::code_table_type::TableType;
-use hashbrown::HashMap;
+use ahash::AHashMap;
 use lazy_static::lazy_static;
 use TableType::*;
 /// Decoding table (CP437 to Unicode)
@@ -758,8 +758,8 @@ pub static DECODING_TABLE_CP874: [Option<char>; 128] = [
 ];
 lazy_static! {
     /// Encoding table (Unicode to CP437)
-    pub static ref ENCODING_TABLE_CP437: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP437: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{00C7}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -891,8 +891,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP737)
-    pub static ref ENCODING_TABLE_CP737: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP737: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{0391}', 0x80);
         m.insert('\u{0392}', 0x81);
         m.insert('\u{0393}', 0x82);
@@ -1024,8 +1024,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP775)
-    pub static ref ENCODING_TABLE_CP775: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP775: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{0106}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -1157,8 +1157,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP850)
-    pub static ref ENCODING_TABLE_CP850: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP850: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{00C7}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -1290,8 +1290,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP852)
-    pub static ref ENCODING_TABLE_CP852: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP852: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{00C7}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -1423,8 +1423,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP855)
-    pub static ref ENCODING_TABLE_CP855: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP855: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{0452}', 0x80);
         m.insert('\u{0402}', 0x81);
         m.insert('\u{0453}', 0x82);
@@ -1556,8 +1556,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP857)
-    pub static ref ENCODING_TABLE_CP857: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP857: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{00C7}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -1686,8 +1686,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP860)
-    pub static ref ENCODING_TABLE_CP860: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP860: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{00C7}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -1819,8 +1819,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP861)
-    pub static ref ENCODING_TABLE_CP861: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP861: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{00C7}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -1952,8 +1952,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP862)
-    pub static ref ENCODING_TABLE_CP862: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP862: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{05D0}', 0x80);
         m.insert('\u{05D1}', 0x81);
         m.insert('\u{05D2}', 0x82);
@@ -2085,8 +2085,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP863)
-    pub static ref ENCODING_TABLE_CP863: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP863: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{00C7}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -2218,8 +2218,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP864)
-    pub static ref ENCODING_TABLE_CP864: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP864: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{066A}', 0x25);
         m.insert('\u{00B0}', 0x80);
         m.insert('\u{00B7}', 0x81);
@@ -2346,8 +2346,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP865)
-    pub static ref ENCODING_TABLE_CP865: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP865: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{00C7}', 0x80);
         m.insert('\u{00FC}', 0x81);
         m.insert('\u{00E9}', 0x82);
@@ -2479,8 +2479,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP866)
-    pub static ref ENCODING_TABLE_CP866: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP866: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{0410}', 0x80);
         m.insert('\u{0411}', 0x81);
         m.insert('\u{0412}', 0x82);
@@ -2612,8 +2612,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP869)
-    pub static ref ENCODING_TABLE_CP869: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP869: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{0386}', 0x86);
         m.insert('\u{00B7}', 0x88);
         m.insert('\u{00AC}', 0x89);
@@ -2736,8 +2736,8 @@ lazy_static! {
         return m;
     };
     /// Encoding table (Unicode to CP874)
-    pub static ref ENCODING_TABLE_CP874: HashMap<char, u8> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP874: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
         m.insert('\u{20AC}', 0x80);
         m.insert('\u{2026}', 0x85);
         m.insert('\u{2018}', 0x91);
@@ -2864,8 +2864,8 @@ lazy_static! {
     ///     panic!("CP874 must be defined in DECODING_TABLE_CP_MAP");
     /// }
     /// ```
-    pub static ref DECODING_TABLE_CP_MAP: HashMap<u16, TableType> = {
-        let mut map = HashMap::new();
+    pub static ref DECODING_TABLE_CP_MAP: AHashMap<u16, TableType> = {
+        let mut map = AHashMap::new();
         map.insert(437, Complete(&DECODING_TABLE_CP437));
         map.insert(737, Complete(&DECODING_TABLE_CP737));
         map.insert(775, Complete(&DECODING_TABLE_CP775));
@@ -2904,8 +2904,8 @@ lazy_static! {
     ///     panic!("CP437 must be registerd in ENCODING_TABLE_CP_MAP");
     /// }
     /// ```
-    pub static ref ENCODING_TABLE_CP_MAP: HashMap<u16, &'static HashMap<char, u8>> = {
-        let mut m = HashMap::new();
+    pub static ref ENCODING_TABLE_CP_MAP: AHashMap<u16, &'static AHashMap<char, u8>> = {
+        let mut m = AHashMap::new();
         m.insert(437, &*ENCODING_TABLE_CP437);
         m.insert(737, &*ENCODING_TABLE_CP737);
         m.insert(775, &*ENCODING_TABLE_CP775);

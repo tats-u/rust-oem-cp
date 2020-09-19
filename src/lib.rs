@@ -1,6 +1,6 @@
 pub mod code_table;
 pub mod code_table_type;
-use hashbrown::HashMap;
+use ahash::AHashMap;
 use std::borrow::Cow;
 use std::convert::Into;
 
@@ -128,7 +128,7 @@ pub fn decode_string_incomplete_table_lossy<'a, T: Into<Cow<'a, [u8]>>>(
 /// ```
 pub fn encode_string_checked<'a, T: Into<Cow<'a, str>>>(
     src: T,
-    encoding_table: &HashMap<char, u8>,
+    encoding_table: &AHashMap<char, u8>,
 ) -> Option<Vec<u8>> {
     let mut ret = Vec::new();
     for c in src.into().chars() {
@@ -164,7 +164,7 @@ pub fn encode_string_checked<'a, T: Into<Cow<'a, str>>>(
 /// ```
 pub fn encode_string_lossy<'a, T: Into<Cow<'a, str>>>(
     src: T,
-    encoding_table: &HashMap<char, u8>,
+    encoding_table: &AHashMap<char, u8>,
 ) -> Vec<u8> {
     src.into()
         .chars()
