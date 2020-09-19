@@ -204,6 +204,25 @@ mod tests {
                 vec![0xB5, 0xE9, 0xC1, 0xC2, 0xD3, 0xA1, 0xD8, 0xE9, 0xA7]
             )
         ];
+        /// OEM SBCSs used in some languages (locales)
+        static ref WINDOWS_USED_CODEPAGES: Vec<u16> = vec![
+            437,
+            // 720, // TODO: implement for locales using Arabic alphabets
+            737,
+            775,
+            850,
+            852,
+            855,
+            857,
+            862,
+            866,
+            874,
+        ];
+        static ref WINDOWS_CONVERSION_VALID_TESTCASES: Vec<(u16, Vec<(u8, char)>)> = vec![
+            (437, vec![(0x82, 'é'), (0x9D, '¥'), (0xFB, '√')]),
+            (850, vec![(0xD0, 'ð'), (0xF3, '¾'), (0x9E, '×')]),
+            (874, vec![(0x80, '€'), (0xDF, '฿'), (0xA1, 'ก')]),
+        ];
     }
     #[test]
     fn cp437_encoding_test() {
@@ -251,6 +270,212 @@ mod tests {
                 &decode_string_incomplete_table_checked(cp437_ref, &DECODING_TABLE_CP874).unwrap(),
                 *utf8_ref
             );
+        }
+    }
+
+    #[test]
+    fn windows_codepages_coverage_test() {
+        for cp in &*WINDOWS_USED_CODEPAGES {
+            assert!(
+                ENCODING_TABLE_CP_MAP.get(&cp).is_some(),
+                "Encoding table for cp{} is not defined",
+                cp
+            );
+            assert!(
+                DECODING_TABLE_CP_MAP.get(&cp).is_some(),
+                "Decoding table for cp{} is not defined",
+                cp
+            );
+        }
+    }
+
+    /// Convert codepoint to Unicode via WindowsAPI
+    ///
+    /// # Arguments
+    ///
+    /// * `byte` - code point to convert to Unicode
+    /// * `codepage` - code page
+    #[cfg(windows)]
+    fn windows_to_unicode_char(byte: u8, codepage: u16) -> Option<char> {
+        let input_buf = [byte];
+        let mut win_decode_buf: Vec<u16>;
+        unsafe {
+            use std::ptr::null_mut;
+            use winapi::shared::winerror::ERROR_NO_UNICODE_TRANSLATION;
+            use winapi::um::errhandlingapi::GetLastError;
+            use winapi::um::stringapiset::MultiByteToWideChar;
+            use winapi::um::winnls::MB_ERR_INVALID_CHARS;
+            let win_decode_len = MultiByteToWideChar(
+                codepage as u32,
+                MB_ERR_INVALID_CHARS,
+                input_buf.as_ptr() as *const i8,
+                1,
+                null_mut(),
+                0,
+            );
+            if win_decode_len <= 0 {
+                if GetLastError() == ERROR_NO_UNICODE_TRANSLATION {
+                    return None;
+                }
+                panic!(
+                    "MultiByteToWideChar (size checking) for 0x{:X} failed in cp{}",
+                    byte, codepage
+                );
+            }
+            win_decode_buf = vec![0; win_decode_len as usize];
+            let win_decode_status = MultiByteToWideChar(
+                codepage as u32,
+                MB_ERR_INVALID_CHARS,
+                input_buf.as_ptr() as *const i8,
+                1,
+                win_decode_buf.as_mut_ptr(),
+                win_decode_len,
+            );
+            assert_eq!(
+                win_decode_status, win_decode_len,
+                "MultiByteToWideChar (writing) failed for 0x{:X} in cp{} (size checking returned {} / writing returned {})",
+                byte,
+                codepage,
+                win_decode_len,
+                win_decode_status
+            );
+        }
+        let string_buf = String::from_utf16(&win_decode_buf).unwrap();
+        if string_buf.chars().count() != 1 {
+            return None;
+        }
+        return Some(string_buf.chars().next().unwrap());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_to_unicode_char_test() {
+        lazy_static! {
+            static ref WINDOWS_CONVERSION_INVALID_TESTCASES: Vec<(u16, Vec<u8>)> = vec![
+                (857, vec![0xE7, 0xF2]),
+                (874, vec![0xDB, 0xDC, 0xDD, 0xDE, 0xFC, 0xFD, 0xFE, 0xFF])
+            ];
+        }
+        use itertools::join;
+        for (codepage, testcases) in &*WINDOWS_CONVERSION_VALID_TESTCASES {
+            let result = testcases
+                .iter()
+                .map(|(source, _)| windows_to_unicode_char(*source, *codepage))
+                .collect::<Vec<Option<char>>>();
+            assert!(
+                testcases
+                    .iter()
+                    .zip(result.iter())
+                    .all(|((_, target), converted)| converted
+                        .map(|c| c == *target)
+                        .unwrap_or(false)),
+                "failed in cp{}:\n{}",
+                codepage,
+                join(
+                    testcases
+                        .iter()
+                        .zip(result.iter())
+                        .filter(|((_, target), converted)| converted
+                            .map(|c| c != *target)
+                            .unwrap_or(true))
+                        .map(|((from, target), converted)| format!(
+                            "0x{:X} => {:?} (target) / {:?} (Windows)",
+                            from, target, converted
+                        )),
+                    ", "
+                )
+            );
+        }
+        for (codepage, testcases) in &*WINDOWS_CONVERSION_INVALID_TESTCASES {
+            let result = testcases
+                .iter()
+                .map(|source| windows_to_unicode_char(*source, *codepage))
+                .collect::<Vec<Option<char>>>();
+            assert!(
+                result.iter().all(|r| r.is_none()),
+                "Some codepoints in cp{} weren't None: {}",
+                codepage,
+                join(
+                    testcases
+                        .iter()
+                        .zip(result.iter())
+                        .filter(|(_, r)| r.is_some())
+                        .map(|(t, r)| format!("0x{:X} => {:?}", t, r.unwrap())),
+                    ", "
+                )
+            );
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn compare_to_winapi_decoding_test() {
+        let windows_testing_codepages: Vec<(u16, Option<Vec<std::ops::Range<u8>>>)> = vec![
+            (437, None),
+            // (720, None),
+            (737, None),
+            (775, None),
+            (850, None),
+            (852, None),
+            (855, None),
+            (857, None),
+            (862, None),
+            (866, None),
+            // CP437 is broken in Windows (0x81-0x84,0x86-0x90,0x98-9F are mapped to U+XX as are, but they must be undefined)
+            (874, Some(vec![0x85..0x85, 0x91..0x97, 0xA0..0xFF])),
+        ];
+        use std::borrow::Cow;
+        let default_range = Cow::from(vec![(128..255).collect::<Vec<u8>>()]);
+        use itertools::join;
+        for (codepage, testing_ranges) in &*windows_testing_codepages {
+            let testing_ranges = testing_ranges
+                .as_ref()
+                .map(|v| {
+                    Cow::from(
+                        v.iter()
+                            .map(|r| r.clone().collect::<Vec<u8>>())
+                            .collect::<Vec<Vec<u8>>>(),
+                    )
+                })
+                .unwrap_or(default_range.clone());
+            for testing in testing_ranges.as_ref() {
+                let msg = format!("Decoding table for cp{} is not defined", codepage);
+                let library_result = DECODING_TABLE_CP_MAP
+                    .get(codepage)
+                    .expect(&*msg)
+                    .decode_string_lossy(testing);
+                let windows_result = testing
+                    .iter()
+                    .map(|codepoint| {
+                        windows_to_unicode_char(*codepoint, *codepage)
+                            .and_then(|ch| {
+                                if 0xE000 <= ch as u32 && ch as u32 <= 0xF8FF {
+                                    None
+                                } else {
+                                    Some(ch)
+                                }
+                            })
+                            .unwrap_or('\u{FFFD}')
+                    })
+                    .collect::<String>();
+                assert_eq!(
+                    library_result,
+                    windows_result,
+                    "Different in cp{}:\n {}",
+                    codepage,
+                    join(
+                        testing
+                            .iter()
+                            .zip(library_result.chars().zip(windows_result.chars()))
+                            .filter(|(_, (l, w))| l != w)
+                            .map(|(from, (lib, win))| format!(
+                                "0x{:X} => {:?} (library) != {:?} (Windows)",
+                                from, lib, win
+                            )),
+                        ", "
+                    )
+                );
+            }
         }
     }
 }
