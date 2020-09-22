@@ -2,48 +2,9 @@ from typing import Optional, List, Dict
 from io import TextIOBase
 import re
 import requests
-from sys import stdout
-from datetime import datetime, timezone
-
-
-target_codepages = [
-    437,
-    737,
-    775,
-    850,
-    852,
-    855,
-    857,
-    860,
-    861,
-    862,
-    863,
-    864,
-    865,
-    866,
-    869,
-    874,
-]
-
-
-def get_codepage_definition_url(codepage: int) -> str:
-    return f"https://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/PC/CP{codepage}.TXT"
-
-
-def get_codepage_table(codepage: int) -> List[Optional[int]]:
-    url = get_codepage_definition_url(codepage)
-    req = requests.get(url)
-    req.raise_for_status()
-    entries = [
-        l.split("\t") for l in req.text.split("\n") if len(l) > 2 and l[:2] == "0x"
-    ]
-    dic: List[Optional[int]] = [None] * 256
-    for e in entries:
-        index = int(e[0][2:], 16)
-        if index | 255 != 255:
-            continue
-        dic[index] = int(e[1][2:], 16) if len(e[1]) > 2 and e[1][:2] == "0x" else None
-    return dic
+from sys import stdout, argv
+from pathlib import Path
+import json
 
 
 def convert_to_reverse_map(table: List[Optional[int]]) -> Dict[int, int]:
@@ -55,11 +16,11 @@ def convert_to_reverse_map(table: List[Optional[int]]) -> Dict[int, int]:
     return ret
 
 
-def print_header(f: TextIOBase = stdout):
+def print_header(timestamp: str, f: TextIOBase = stdout):
     print(
         f"""\
 //! Code table
-//! Generated at {datetime.now(timezone.utc).isoformat(timespec="seconds")}
+//! Generated at {timestamp}
 use super::code_table_type::TableType;
 use ahash::AHashMap;
 use lazy_static::lazy_static;
@@ -154,8 +115,8 @@ lazy_static! {
     /// if let Some(cp874_table) = (*DECODING_TABLE_CP_MAP).get(&874) {
     ///     // means shrimp in Thai (U+E49 => 0xE9)
     ///     assert_eq!(cp874_table.decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
-    ///     // undefined mapping 0x81 for CP874
-    ///     assert_eq!(cp874_table.decode_string_checked(vec![0x81]), None);
+    ///     // undefined mapping 0xDB for CP874 Windows dialect (strict mode with MB_ERR_INVALID_CHARS)
+    ///     assert_eq!(cp874_table.decode_string_checked(vec![0xDB]), None);
     /// } else {
     ///     panic!("CP874 must be defined in DECODING_TABLE_CP_MAP");
     /// }
@@ -220,14 +181,24 @@ lazy_static! {
 
 
 if __name__ == "__main__":
-    table_map = {}
-    reverse_map = {}
-    for codepage in target_codepages:
-        table_map[codepage] = get_codepage_table(codepage)
-        reverse_map[codepage] = convert_to_reverse_map(table_map[codepage])
+    raw_json = {}
+    with (Path(argv[0]).parent / "assets" / "code_tables.json").open(
+        encoding="UTF-8", newline="\n"
+    ) as f:
+        raw_json = json.load(f)
+
+    created_timestamp = raw_json["created"]
+    table_map = {
+        int(codepage_str): table for codepage_str, table in raw_json["tables"].items()
+    }
+    reverse_map = {
+        codepage: convert_to_reverse_map(table_map[codepage])
+        for codepage in table_map.keys()
+    }
+
     with open("src/code_table.rs", "w", encoding="utf-8", newline="\n") as f:
-        print_header(f)
-        for codepage in target_codepages:
+        print_header(created_timestamp, f)
+        for codepage in table_map.keys():
             table = table_map[codepage]
             print_codepage_table(codepage, table, f)
         print_reverse_map(reverse_map, f)

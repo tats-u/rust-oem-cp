@@ -1,5 +1,5 @@
 //! Code table
-//! Generated at 2020-08-16T04:50:20+00:00
+//! Generated at 2020-09-22T01:23:23+00:00
 use super::code_table_type::TableType;
 use ahash::AHashMap;
 use lazy_static::lazy_static;
@@ -625,25 +625,175 @@ pub static DECODING_TABLE_CP869: [Option<char>; 128] = [
     Some('\u{25A0}'),
     Some('\u{00A0}'),
 ];
+/// Decoding table (CP720 to Unicode)
+pub static DECODING_TABLE_CP720: [Option<char>; 128] = [
+    None,
+    None,
+    Some('\u{00E9}'),
+    Some('\u{00E2}'),
+    None,
+    Some('\u{00E0}'),
+    None,
+    Some('\u{00E7}'),
+    Some('\u{00EA}'),
+    Some('\u{00EB}'),
+    Some('\u{00E8}'),
+    Some('\u{00EF}'),
+    Some('\u{00EE}'),
+    None,
+    None,
+    None,
+    None,
+    Some('\u{0651}'),
+    Some('\u{0652}'),
+    Some('\u{00F4}'),
+    Some('\u{00A4}'),
+    Some('\u{0640}'),
+    Some('\u{00FB}'),
+    Some('\u{00F9}'),
+    Some('\u{0621}'),
+    Some('\u{0622}'),
+    Some('\u{0623}'),
+    Some('\u{0624}'),
+    Some('\u{00A3}'),
+    Some('\u{0625}'),
+    Some('\u{0626}'),
+    Some('\u{0627}'),
+    Some('\u{0628}'),
+    Some('\u{0629}'),
+    Some('\u{062A}'),
+    Some('\u{062B}'),
+    Some('\u{062C}'),
+    Some('\u{062D}'),
+    Some('\u{062E}'),
+    Some('\u{062F}'),
+    Some('\u{0630}'),
+    Some('\u{0631}'),
+    Some('\u{0632}'),
+    Some('\u{0633}'),
+    Some('\u{0634}'),
+    Some('\u{0635}'),
+    Some('\u{00AB}'),
+    Some('\u{00BB}'),
+    Some('\u{2591}'),
+    Some('\u{2592}'),
+    Some('\u{2593}'),
+    Some('\u{2502}'),
+    Some('\u{2524}'),
+    Some('\u{2561}'),
+    Some('\u{2562}'),
+    Some('\u{2556}'),
+    Some('\u{2555}'),
+    Some('\u{2563}'),
+    Some('\u{2551}'),
+    Some('\u{2557}'),
+    Some('\u{255D}'),
+    Some('\u{255C}'),
+    Some('\u{255B}'),
+    Some('\u{2510}'),
+    Some('\u{2514}'),
+    Some('\u{2534}'),
+    Some('\u{252C}'),
+    Some('\u{251C}'),
+    Some('\u{2500}'),
+    Some('\u{253C}'),
+    Some('\u{255E}'),
+    Some('\u{255F}'),
+    Some('\u{255A}'),
+    Some('\u{2554}'),
+    Some('\u{2569}'),
+    Some('\u{2566}'),
+    Some('\u{2560}'),
+    Some('\u{2550}'),
+    Some('\u{256C}'),
+    Some('\u{2567}'),
+    Some('\u{2568}'),
+    Some('\u{2564}'),
+    Some('\u{2565}'),
+    Some('\u{2559}'),
+    Some('\u{2558}'),
+    Some('\u{2552}'),
+    Some('\u{2553}'),
+    Some('\u{256B}'),
+    Some('\u{256A}'),
+    Some('\u{2518}'),
+    Some('\u{250C}'),
+    Some('\u{2588}'),
+    Some('\u{2584}'),
+    Some('\u{258C}'),
+    Some('\u{2590}'),
+    Some('\u{2580}'),
+    Some('\u{0636}'),
+    Some('\u{0637}'),
+    Some('\u{0638}'),
+    Some('\u{0639}'),
+    Some('\u{063A}'),
+    Some('\u{0641}'),
+    Some('\u{00B5}'),
+    Some('\u{0642}'),
+    Some('\u{0643}'),
+    Some('\u{0644}'),
+    Some('\u{0645}'),
+    Some('\u{0646}'),
+    Some('\u{0647}'),
+    Some('\u{0648}'),
+    Some('\u{0649}'),
+    Some('\u{064A}'),
+    Some('\u{2261}'),
+    Some('\u{064B}'),
+    Some('\u{064C}'),
+    Some('\u{064D}'),
+    Some('\u{064E}'),
+    Some('\u{064F}'),
+    Some('\u{0650}'),
+    Some('\u{2248}'),
+    Some('\u{00B0}'),
+    Some('\u{2219}'),
+    Some('\u{00B7}'),
+    Some('\u{221A}'),
+    Some('\u{207F}'),
+    Some('\u{00B2}'),
+    Some('\u{25A0}'),
+    Some('\u{00A0}'),
+];
+/// Decoding table (CP858 to Unicode)
+pub static DECODING_TABLE_CP858: [char; 128] = [
+    '\u{00C7}', '\u{00FC}', '\u{00E9}', '\u{00E2}', '\u{00E4}', '\u{00E0}', '\u{00E5}', '\u{00E7}',
+    '\u{00EA}', '\u{00EB}', '\u{00E8}', '\u{00EF}', '\u{00EE}', '\u{00EC}', '\u{00C4}', '\u{00C5}',
+    '\u{00C9}', '\u{00E6}', '\u{00C6}', '\u{00F4}', '\u{00F6}', '\u{00F2}', '\u{00FB}', '\u{00F9}',
+    '\u{00FF}', '\u{00D6}', '\u{00DC}', '\u{00F8}', '\u{00A3}', '\u{00D8}', '\u{00D7}', '\u{0192}',
+    '\u{00E1}', '\u{00ED}', '\u{00F3}', '\u{00FA}', '\u{00F1}', '\u{00D1}', '\u{00AA}', '\u{00BA}',
+    '\u{00BF}', '\u{00AE}', '\u{00AC}', '\u{00BD}', '\u{00BC}', '\u{00A1}', '\u{00AB}', '\u{00BB}',
+    '\u{2591}', '\u{2592}', '\u{2593}', '\u{2502}', '\u{2524}', '\u{00C1}', '\u{00C2}', '\u{00C0}',
+    '\u{00A9}', '\u{2563}', '\u{2551}', '\u{2557}', '\u{255D}', '\u{00A2}', '\u{00A5}', '\u{2510}',
+    '\u{2514}', '\u{2534}', '\u{252C}', '\u{251C}', '\u{2500}', '\u{253C}', '\u{00E3}', '\u{00C3}',
+    '\u{255A}', '\u{2554}', '\u{2569}', '\u{2566}', '\u{2560}', '\u{2550}', '\u{256C}', '\u{00A4}',
+    '\u{00F0}', '\u{00D0}', '\u{00CA}', '\u{00CB}', '\u{00C8}', '\u{20AC}', '\u{00CD}', '\u{00CE}',
+    '\u{00CF}', '\u{2518}', '\u{250C}', '\u{2588}', '\u{2584}', '\u{00A6}', '\u{00CC}', '\u{2580}',
+    '\u{00D3}', '\u{00DF}', '\u{00D4}', '\u{00D2}', '\u{00F5}', '\u{00D5}', '\u{00B5}', '\u{00FE}',
+    '\u{00DE}', '\u{00DA}', '\u{00DB}', '\u{00D9}', '\u{00FD}', '\u{00DD}', '\u{00AF}', '\u{00B4}',
+    '\u{00AD}', '\u{00B1}', '\u{2017}', '\u{00BE}', '\u{00B6}', '\u{00A7}', '\u{00F7}', '\u{00B8}',
+    '\u{00B0}', '\u{00A8}', '\u{00B7}', '\u{00B9}', '\u{00B3}', '\u{00B2}', '\u{25A0}', '\u{00A0}',
+];
 /// Decoding table (CP874 to Unicode)
 pub static DECODING_TABLE_CP874: [Option<char>; 128] = [
     Some('\u{20AC}'),
-    None,
-    None,
-    None,
-    None,
+    Some('\u{0081}'),
+    Some('\u{0082}'),
+    Some('\u{0083}'),
+    Some('\u{0084}'),
     Some('\u{2026}'),
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
+    Some('\u{0086}'),
+    Some('\u{0087}'),
+    Some('\u{0088}'),
+    Some('\u{0089}'),
+    Some('\u{008A}'),
+    Some('\u{008B}'),
+    Some('\u{008C}'),
+    Some('\u{008D}'),
+    Some('\u{008E}'),
+    Some('\u{008F}'),
+    Some('\u{0090}'),
     Some('\u{2018}'),
     Some('\u{2019}'),
     Some('\u{201C}'),
@@ -651,14 +801,14 @@ pub static DECODING_TABLE_CP874: [Option<char>; 128] = [
     Some('\u{2022}'),
     Some('\u{2013}'),
     Some('\u{2014}'),
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
+    Some('\u{0098}'),
+    Some('\u{0099}'),
+    Some('\u{009A}'),
+    Some('\u{009B}'),
+    Some('\u{009C}'),
+    Some('\u{009D}'),
+    Some('\u{009E}'),
+    Some('\u{009F}'),
     Some('\u{00A0}'),
     Some('\u{0E01}'),
     Some('\u{0E02}'),
@@ -2735,11 +2885,290 @@ lazy_static! {
         m.insert('\u{00A0}', 0xFF);
         return m;
     };
+    /// Encoding table (Unicode to CP720)
+    pub static ref ENCODING_TABLE_CP720: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
+        m.insert('\u{001C}', 0x1A);
+        m.insert('\u{007F}', 0x1C);
+        m.insert('\u{001A}', 0x7F);
+        m.insert('\u{00E9}', 0x82);
+        m.insert('\u{00E2}', 0x83);
+        m.insert('\u{00E0}', 0x85);
+        m.insert('\u{00E7}', 0x87);
+        m.insert('\u{00EA}', 0x88);
+        m.insert('\u{00EB}', 0x89);
+        m.insert('\u{00E8}', 0x8A);
+        m.insert('\u{00EF}', 0x8B);
+        m.insert('\u{00EE}', 0x8C);
+        m.insert('\u{0651}', 0x91);
+        m.insert('\u{0652}', 0x92);
+        m.insert('\u{00F4}', 0x93);
+        m.insert('\u{00A4}', 0x94);
+        m.insert('\u{0640}', 0x95);
+        m.insert('\u{00FB}', 0x96);
+        m.insert('\u{00F9}', 0x97);
+        m.insert('\u{0621}', 0x98);
+        m.insert('\u{0622}', 0x99);
+        m.insert('\u{0623}', 0x9A);
+        m.insert('\u{0624}', 0x9B);
+        m.insert('\u{00A3}', 0x9C);
+        m.insert('\u{0625}', 0x9D);
+        m.insert('\u{0626}', 0x9E);
+        m.insert('\u{0627}', 0x9F);
+        m.insert('\u{0628}', 0xA0);
+        m.insert('\u{0629}', 0xA1);
+        m.insert('\u{062A}', 0xA2);
+        m.insert('\u{062B}', 0xA3);
+        m.insert('\u{062C}', 0xA4);
+        m.insert('\u{062D}', 0xA5);
+        m.insert('\u{062E}', 0xA6);
+        m.insert('\u{062F}', 0xA7);
+        m.insert('\u{0630}', 0xA8);
+        m.insert('\u{0631}', 0xA9);
+        m.insert('\u{0632}', 0xAA);
+        m.insert('\u{0633}', 0xAB);
+        m.insert('\u{0634}', 0xAC);
+        m.insert('\u{0635}', 0xAD);
+        m.insert('\u{00AB}', 0xAE);
+        m.insert('\u{00BB}', 0xAF);
+        m.insert('\u{2591}', 0xB0);
+        m.insert('\u{2592}', 0xB1);
+        m.insert('\u{2593}', 0xB2);
+        m.insert('\u{2502}', 0xB3);
+        m.insert('\u{2524}', 0xB4);
+        m.insert('\u{2561}', 0xB5);
+        m.insert('\u{2562}', 0xB6);
+        m.insert('\u{2556}', 0xB7);
+        m.insert('\u{2555}', 0xB8);
+        m.insert('\u{2563}', 0xB9);
+        m.insert('\u{2551}', 0xBA);
+        m.insert('\u{2557}', 0xBB);
+        m.insert('\u{255D}', 0xBC);
+        m.insert('\u{255C}', 0xBD);
+        m.insert('\u{255B}', 0xBE);
+        m.insert('\u{2510}', 0xBF);
+        m.insert('\u{2514}', 0xC0);
+        m.insert('\u{2534}', 0xC1);
+        m.insert('\u{252C}', 0xC2);
+        m.insert('\u{251C}', 0xC3);
+        m.insert('\u{2500}', 0xC4);
+        m.insert('\u{253C}', 0xC5);
+        m.insert('\u{255E}', 0xC6);
+        m.insert('\u{255F}', 0xC7);
+        m.insert('\u{255A}', 0xC8);
+        m.insert('\u{2554}', 0xC9);
+        m.insert('\u{2569}', 0xCA);
+        m.insert('\u{2566}', 0xCB);
+        m.insert('\u{2560}', 0xCC);
+        m.insert('\u{2550}', 0xCD);
+        m.insert('\u{256C}', 0xCE);
+        m.insert('\u{2567}', 0xCF);
+        m.insert('\u{2568}', 0xD0);
+        m.insert('\u{2564}', 0xD1);
+        m.insert('\u{2565}', 0xD2);
+        m.insert('\u{2559}', 0xD3);
+        m.insert('\u{2558}', 0xD4);
+        m.insert('\u{2552}', 0xD5);
+        m.insert('\u{2553}', 0xD6);
+        m.insert('\u{256B}', 0xD7);
+        m.insert('\u{256A}', 0xD8);
+        m.insert('\u{2518}', 0xD9);
+        m.insert('\u{250C}', 0xDA);
+        m.insert('\u{2588}', 0xDB);
+        m.insert('\u{2584}', 0xDC);
+        m.insert('\u{258C}', 0xDD);
+        m.insert('\u{2590}', 0xDE);
+        m.insert('\u{2580}', 0xDF);
+        m.insert('\u{0636}', 0xE0);
+        m.insert('\u{0637}', 0xE1);
+        m.insert('\u{0638}', 0xE2);
+        m.insert('\u{0639}', 0xE3);
+        m.insert('\u{063A}', 0xE4);
+        m.insert('\u{0641}', 0xE5);
+        m.insert('\u{00B5}', 0xE6);
+        m.insert('\u{0642}', 0xE7);
+        m.insert('\u{0643}', 0xE8);
+        m.insert('\u{0644}', 0xE9);
+        m.insert('\u{0645}', 0xEA);
+        m.insert('\u{0646}', 0xEB);
+        m.insert('\u{0647}', 0xEC);
+        m.insert('\u{0648}', 0xED);
+        m.insert('\u{0649}', 0xEE);
+        m.insert('\u{064A}', 0xEF);
+        m.insert('\u{2261}', 0xF0);
+        m.insert('\u{064B}', 0xF1);
+        m.insert('\u{064C}', 0xF2);
+        m.insert('\u{064D}', 0xF3);
+        m.insert('\u{064E}', 0xF4);
+        m.insert('\u{064F}', 0xF5);
+        m.insert('\u{0650}', 0xF6);
+        m.insert('\u{2248}', 0xF7);
+        m.insert('\u{00B0}', 0xF8);
+        m.insert('\u{2219}', 0xF9);
+        m.insert('\u{00B7}', 0xFA);
+        m.insert('\u{221A}', 0xFB);
+        m.insert('\u{207F}', 0xFC);
+        m.insert('\u{00B2}', 0xFD);
+        m.insert('\u{25A0}', 0xFE);
+        m.insert('\u{00A0}', 0xFF);
+        return m;
+    };
+    /// Encoding table (Unicode to CP858)
+    pub static ref ENCODING_TABLE_CP858: AHashMap<char, u8> = {
+        let mut m = AHashMap::new();
+        m.insert('\u{001C}', 0x1A);
+        m.insert('\u{007F}', 0x1C);
+        m.insert('\u{001A}', 0x7F);
+        m.insert('\u{00C7}', 0x80);
+        m.insert('\u{00FC}', 0x81);
+        m.insert('\u{00E9}', 0x82);
+        m.insert('\u{00E2}', 0x83);
+        m.insert('\u{00E4}', 0x84);
+        m.insert('\u{00E0}', 0x85);
+        m.insert('\u{00E5}', 0x86);
+        m.insert('\u{00E7}', 0x87);
+        m.insert('\u{00EA}', 0x88);
+        m.insert('\u{00EB}', 0x89);
+        m.insert('\u{00E8}', 0x8A);
+        m.insert('\u{00EF}', 0x8B);
+        m.insert('\u{00EE}', 0x8C);
+        m.insert('\u{00EC}', 0x8D);
+        m.insert('\u{00C4}', 0x8E);
+        m.insert('\u{00C5}', 0x8F);
+        m.insert('\u{00C9}', 0x90);
+        m.insert('\u{00E6}', 0x91);
+        m.insert('\u{00C6}', 0x92);
+        m.insert('\u{00F4}', 0x93);
+        m.insert('\u{00F6}', 0x94);
+        m.insert('\u{00F2}', 0x95);
+        m.insert('\u{00FB}', 0x96);
+        m.insert('\u{00F9}', 0x97);
+        m.insert('\u{00FF}', 0x98);
+        m.insert('\u{00D6}', 0x99);
+        m.insert('\u{00DC}', 0x9A);
+        m.insert('\u{00F8}', 0x9B);
+        m.insert('\u{00A3}', 0x9C);
+        m.insert('\u{00D8}', 0x9D);
+        m.insert('\u{00D7}', 0x9E);
+        m.insert('\u{0192}', 0x9F);
+        m.insert('\u{00E1}', 0xA0);
+        m.insert('\u{00ED}', 0xA1);
+        m.insert('\u{00F3}', 0xA2);
+        m.insert('\u{00FA}', 0xA3);
+        m.insert('\u{00F1}', 0xA4);
+        m.insert('\u{00D1}', 0xA5);
+        m.insert('\u{00AA}', 0xA6);
+        m.insert('\u{00BA}', 0xA7);
+        m.insert('\u{00BF}', 0xA8);
+        m.insert('\u{00AE}', 0xA9);
+        m.insert('\u{00AC}', 0xAA);
+        m.insert('\u{00BD}', 0xAB);
+        m.insert('\u{00BC}', 0xAC);
+        m.insert('\u{00A1}', 0xAD);
+        m.insert('\u{00AB}', 0xAE);
+        m.insert('\u{00BB}', 0xAF);
+        m.insert('\u{2591}', 0xB0);
+        m.insert('\u{2592}', 0xB1);
+        m.insert('\u{2593}', 0xB2);
+        m.insert('\u{2502}', 0xB3);
+        m.insert('\u{2524}', 0xB4);
+        m.insert('\u{00C1}', 0xB5);
+        m.insert('\u{00C2}', 0xB6);
+        m.insert('\u{00C0}', 0xB7);
+        m.insert('\u{00A9}', 0xB8);
+        m.insert('\u{2563}', 0xB9);
+        m.insert('\u{2551}', 0xBA);
+        m.insert('\u{2557}', 0xBB);
+        m.insert('\u{255D}', 0xBC);
+        m.insert('\u{00A2}', 0xBD);
+        m.insert('\u{00A5}', 0xBE);
+        m.insert('\u{2510}', 0xBF);
+        m.insert('\u{2514}', 0xC0);
+        m.insert('\u{2534}', 0xC1);
+        m.insert('\u{252C}', 0xC2);
+        m.insert('\u{251C}', 0xC3);
+        m.insert('\u{2500}', 0xC4);
+        m.insert('\u{253C}', 0xC5);
+        m.insert('\u{00E3}', 0xC6);
+        m.insert('\u{00C3}', 0xC7);
+        m.insert('\u{255A}', 0xC8);
+        m.insert('\u{2554}', 0xC9);
+        m.insert('\u{2569}', 0xCA);
+        m.insert('\u{2566}', 0xCB);
+        m.insert('\u{2560}', 0xCC);
+        m.insert('\u{2550}', 0xCD);
+        m.insert('\u{256C}', 0xCE);
+        m.insert('\u{00A4}', 0xCF);
+        m.insert('\u{00F0}', 0xD0);
+        m.insert('\u{00D0}', 0xD1);
+        m.insert('\u{00CA}', 0xD2);
+        m.insert('\u{00CB}', 0xD3);
+        m.insert('\u{00C8}', 0xD4);
+        m.insert('\u{20AC}', 0xD5);
+        m.insert('\u{00CD}', 0xD6);
+        m.insert('\u{00CE}', 0xD7);
+        m.insert('\u{00CF}', 0xD8);
+        m.insert('\u{2518}', 0xD9);
+        m.insert('\u{250C}', 0xDA);
+        m.insert('\u{2588}', 0xDB);
+        m.insert('\u{2584}', 0xDC);
+        m.insert('\u{00A6}', 0xDD);
+        m.insert('\u{00CC}', 0xDE);
+        m.insert('\u{2580}', 0xDF);
+        m.insert('\u{00D3}', 0xE0);
+        m.insert('\u{00DF}', 0xE1);
+        m.insert('\u{00D4}', 0xE2);
+        m.insert('\u{00D2}', 0xE3);
+        m.insert('\u{00F5}', 0xE4);
+        m.insert('\u{00D5}', 0xE5);
+        m.insert('\u{00B5}', 0xE6);
+        m.insert('\u{00FE}', 0xE7);
+        m.insert('\u{00DE}', 0xE8);
+        m.insert('\u{00DA}', 0xE9);
+        m.insert('\u{00DB}', 0xEA);
+        m.insert('\u{00D9}', 0xEB);
+        m.insert('\u{00FD}', 0xEC);
+        m.insert('\u{00DD}', 0xED);
+        m.insert('\u{00AF}', 0xEE);
+        m.insert('\u{00B4}', 0xEF);
+        m.insert('\u{00AD}', 0xF0);
+        m.insert('\u{00B1}', 0xF1);
+        m.insert('\u{2017}', 0xF2);
+        m.insert('\u{00BE}', 0xF3);
+        m.insert('\u{00B6}', 0xF4);
+        m.insert('\u{00A7}', 0xF5);
+        m.insert('\u{00F7}', 0xF6);
+        m.insert('\u{00B8}', 0xF7);
+        m.insert('\u{00B0}', 0xF8);
+        m.insert('\u{00A8}', 0xF9);
+        m.insert('\u{00B7}', 0xFA);
+        m.insert('\u{00B9}', 0xFB);
+        m.insert('\u{00B3}', 0xFC);
+        m.insert('\u{00B2}', 0xFD);
+        m.insert('\u{25A0}', 0xFE);
+        m.insert('\u{00A0}', 0xFF);
+        return m;
+    };
     /// Encoding table (Unicode to CP874)
     pub static ref ENCODING_TABLE_CP874: AHashMap<char, u8> = {
         let mut m = AHashMap::new();
         m.insert('\u{20AC}', 0x80);
+        m.insert('\u{0081}', 0x81);
+        m.insert('\u{0082}', 0x82);
+        m.insert('\u{0083}', 0x83);
+        m.insert('\u{0084}', 0x84);
         m.insert('\u{2026}', 0x85);
+        m.insert('\u{0086}', 0x86);
+        m.insert('\u{0087}', 0x87);
+        m.insert('\u{0088}', 0x88);
+        m.insert('\u{0089}', 0x89);
+        m.insert('\u{008A}', 0x8A);
+        m.insert('\u{008B}', 0x8B);
+        m.insert('\u{008C}', 0x8C);
+        m.insert('\u{008D}', 0x8D);
+        m.insert('\u{008E}', 0x8E);
+        m.insert('\u{008F}', 0x8F);
+        m.insert('\u{0090}', 0x90);
         m.insert('\u{2018}', 0x91);
         m.insert('\u{2019}', 0x92);
         m.insert('\u{201C}', 0x93);
@@ -2747,6 +3176,14 @@ lazy_static! {
         m.insert('\u{2022}', 0x95);
         m.insert('\u{2013}', 0x96);
         m.insert('\u{2014}', 0x97);
+        m.insert('\u{0098}', 0x98);
+        m.insert('\u{0099}', 0x99);
+        m.insert('\u{009A}', 0x9A);
+        m.insert('\u{009B}', 0x9B);
+        m.insert('\u{009C}', 0x9C);
+        m.insert('\u{009D}', 0x9D);
+        m.insert('\u{009E}', 0x9E);
+        m.insert('\u{009F}', 0x9F);
         m.insert('\u{00A0}', 0xA0);
         m.insert('\u{0E01}', 0xA1);
         m.insert('\u{0E02}', 0xA2);
@@ -2858,8 +3295,8 @@ lazy_static! {
     /// if let Some(cp874_table) = (*DECODING_TABLE_CP_MAP).get(&874) {
     ///     // means shrimp in Thai (U+E49 => 0xE9)
     ///     assert_eq!(cp874_table.decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
-    ///     // undefined mapping 0x81 for CP874
-    ///     assert_eq!(cp874_table.decode_string_checked(vec![0x81]), None);
+    ///     // undefined mapping 0xDB for CP874 Windows dialect (strict mode with MB_ERR_INVALID_CHARS)
+    ///     assert_eq!(cp874_table.decode_string_checked(vec![0xDB]), None);
     /// } else {
     ///     panic!("CP874 must be defined in DECODING_TABLE_CP_MAP");
     /// }
@@ -2881,6 +3318,8 @@ lazy_static! {
         map.insert(865, Complete(&DECODING_TABLE_CP865));
         map.insert(866, Complete(&DECODING_TABLE_CP866));
         map.insert(869, Incomplete(&DECODING_TABLE_CP869));
+        map.insert(720, Incomplete(&DECODING_TABLE_CP720));
+        map.insert(858, Complete(&DECODING_TABLE_CP858));
         map.insert(874, Incomplete(&DECODING_TABLE_CP874));
         return map;
     };
@@ -2921,6 +3360,8 @@ lazy_static! {
         m.insert(865, &*ENCODING_TABLE_CP865);
         m.insert(866, &*ENCODING_TABLE_CP866);
         m.insert(869, &*ENCODING_TABLE_CP869);
+        m.insert(720, &*ENCODING_TABLE_CP720);
+        m.insert(858, &*ENCODING_TABLE_CP858);
         m.insert(874, &*ENCODING_TABLE_CP874);
         return m;
     };

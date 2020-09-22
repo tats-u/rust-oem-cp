@@ -35,8 +35,8 @@ impl TableType {
     /// assert_eq!(Complete(&DECODING_TABLE_CP437).decode_string_checked(vec![0xFB, 0xAC, 0x3D, 0xAB]), Some("√¼=½".to_string()));
     /// // means shrimp in Thai (U+E49 => 0xE9)
     /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
-    /// // 0x81-0x84,0x86-0x90,0x98-0x9F is invalid in CP874
-    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_checked(vec![0x30, 0x81]), None);
+    /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows (strict mode)
+    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_checked(vec![0x30, 0xDB]), None);
     /// ```
     pub fn decode_string_checked<'a, T: Into<Cow<'a, [u8]>>>(&self, src: T) -> Option<String> {
         match self {
@@ -62,8 +62,8 @@ impl TableType {
     /// assert_eq!(Complete(&DECODING_TABLE_CP437).decode_string_lossy(vec![0xFB, 0xAC, 0x3D, 0xAB]), "√¼=½".to_string());
     /// // means shrimp in Thai (U+E49 => 0xE9)
     /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_lossy(vec![0xA1, 0xD8, 0xE9, 0xA7]), "กุ้ง".to_string());
-    /// // 0x81-0x84,0x86-0x90,0x98-0x9F is invalid in CP874
-    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_lossy(vec![0x30, 0x81]), "0\u{FFFD}".to_string());
+    /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows (strict mode)
+    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_lossy(vec![0x30, 0xDB]), "0\u{FFFD}".to_string());
     /// ```
     pub fn decode_string_lossy<'a, T: Into<Cow<'a, [u8]>>>(&self, src: T) -> String {
         match self {

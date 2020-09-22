@@ -12,12 +12,14 @@ This library handles many SBCS (single byte character sets) that are used as OEM
 | Code Page | Note                                             |
 | --------- | ------------------------------------------------ |
 | 437       | OEM United States                                |
+| 720       | Arabic (Transparent ASMO); Arabic (DOS)          |
 | 737       | OEM Greek (formerly 437G); Greek (DOS)           |
 | 775       | OEM Baltic; Baltic (DOS)                         |
 | 850       | OEM Multilingual Latin 1; Western European (DOS) |
 | 852       | OEM Latin 2; Central European (DOS)              |
 | 855       | OEM Cyrillic (primarily Russian)                 |
 | 857       | OEM Turkish; Turkish (DOS)                       |
+| 858       | OEM Multilingual Latin 1 + Euro symbol           |
 | 860       | OEM Portuguese; Portuguese (DOS)                 |
 | 861       | OEM Icelandic; Icelandic (DOS)                   |
 | 862       | OEM Hebrew; Hebrew (DOS)                         |
@@ -72,12 +74,12 @@ assert_eq!(&decode_string_complete_table(vec![0xFB, 0xAC, 0x3D, 0xAB], &DECODING
 
 // means shrimp in Thai (U+E49 => 0xE9)
 assert_eq!(decode_string_incomplete_table_checked(vec![0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), Some("กุ้ง".to_string()));
-// 0x81-0x84,0x86-0x90,0x98-0x9F is invalid in CP874
-assert_eq!(decode_string_incomplete_table_checked(vec![0x30, 0x81], &DECODING_TABLE_CP874), None);
+// 0xDB-0xDE,0xFC-0xFF is undefined in CP874 in Windows
+assert_eq!(decode_string_incomplete_table_checked(vec![0x30, 0xDB], &DECODING_TABLE_CP874), None);
 // You can use decode_string_incomplete_table_lossy instead
 assert_eq!(&decode_string_incomplete_table_lossy(vec![0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), "กุ้ง");
 // Undefined code points are replaced with U+FFFD (replacement character)
-assert_eq!(&decode_string_incomplete_table_lossy(vec![0x30, 0x81], &DECODING_TABLE_CP874), "0\u{FFFD}");
+assert_eq!(&decode_string_incomplete_table_lossy(vec![0x30, 0xDB], &DECODING_TABLE_CP874), "0\u{FFFD}");
 ```
 
 ## Select appropriate codepage from integer
@@ -88,9 +90,9 @@ use oem_cp::{encoding_string_checked, encoding_string_lossy};
 
 if let Some(cp874_table) = (*DECODING_TABLE_CP_MAP).get(&874) {
     assert_eq!(cp874_table.decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
-    // undefined mapping 0x81 for CP874
-    assert_eq!(cp874_table.decode_string_checked(vec![0x81]), None);
-    assert_eq!(&cp874_table.decode_string_lossy(vec![0x81]), "\u{FFFD}");
+    // undefined mapping 0xDB for CP874
+    assert_eq!(cp874_table.decode_string_checked(vec![0xDB]), None);
+    assert_eq!(&cp874_table.decode_string_lossy(vec![0xDB]), "\u{FFFD}");
 } else {
     panic!("Why the hell CP874 isn't registered?");
 }

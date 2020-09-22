@@ -52,8 +52,8 @@ pub fn decode_string_complete_table<'a, T: Into<Cow<'a, [u8]>>>(
 ///
 /// // means shrimp in Thai (U+E49 => 0xE9)
 /// assert_eq!(decode_string_incomplete_table_checked(vec![0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), Some("กุ้ง".to_string()));
-/// // 0x81-0x84,0x86-0x90,0x98-0x9F is invalid in CP874
-/// assert_eq!(decode_string_incomplete_table_checked(vec![0x30, 0x81], &DECODING_TABLE_CP874), None);
+/// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows
+/// assert_eq!(decode_string_incomplete_table_checked(vec![0x30, 0xDB], &DECODING_TABLE_CP874), None);
 /// ```
 pub fn decode_string_incomplete_table_checked<'a, T: Into<Cow<'a, [u8]>>>(
     src: T,
@@ -87,8 +87,8 @@ pub fn decode_string_incomplete_table_checked<'a, T: Into<Cow<'a, [u8]>>>(
 ///
 /// // means shrimp in Thai (U+E49 => 0xE9)
 /// assert_eq!(&decode_string_incomplete_table_lossy(vec![0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), "กุ้ง");
-/// // 0x81-0x84,0x86-0x90,0x98-0x9F is invalid in CP874
-/// assert_eq!(&decode_string_incomplete_table_lossy(vec![0x30, 0x81], &DECODING_TABLE_CP874), "0\u{FFFD}");
+/// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows
+/// assert_eq!(&decode_string_incomplete_table_lossy(vec![0x30, 0xDB], &DECODING_TABLE_CP874), "0\u{FFFD}");
 /// ```
 pub fn decode_string_incomplete_table_lossy<'a, T: Into<Cow<'a, [u8]>>>(
     src: T,
@@ -204,6 +204,13 @@ mod tests {
                 vec![0xB5, 0xE9, 0xC1, 0xC2, 0xD3, 0xA1, 0xD8, 0xE9, 0xA7]
             )
         ];
+        static ref CP857_VALID_PAIRS: Vec<(&'static str, Vec<u8>)> = vec![
+            ("½÷¼=2", vec![0xAB, 0xF6, 0xAC, 0x3D, 0x32]),
+            ("¼×3=¾", vec![0xAC, 0xE8,0x33,0x3D,0xF3]),
+            ("İran", vec![0x98, 0x72,0x61,0x6E]),
+            ("ırmak", vec![0x8D,0x72,0x6D,0x61,0x6B]),
+            ("iş", vec![0x69,0x9F]),
+        ];
         /// OEM SBCSs used in some languages (locales)
         static ref WINDOWS_USED_CODEPAGES: Vec<u16> = vec![
             437,
@@ -261,13 +268,17 @@ mod tests {
     }
     #[test]
     fn cp874_decoding_test() {
-        for (utf8_ref, cp437_ref) in &*CP874_VALID_PAIRS {
+        for (utf8_ref, cp874_ref) in &*CP874_VALID_PAIRS {
             assert_eq!(
-                &decode_string_incomplete_table_lossy(cp437_ref, &DECODING_TABLE_CP874),
+                &decode_string_incomplete_table_lossy(cp874_ref, &DECODING_TABLE_CP874),
                 *utf8_ref
             );
             assert_eq!(
-                &decode_string_incomplete_table_checked(cp437_ref, &DECODING_TABLE_CP874).unwrap(),
+                &*(decode_string_incomplete_table_checked(cp874_ref, &DECODING_TABLE_CP874)
+                    .unwrap_or_else(|| panic!(
+                        "{:?} (intended for {:?}) is not a valid cp874 bytes.",
+                        cp874_ref, utf8_ref
+                    ))),
                 *utf8_ref
             );
         }
@@ -421,8 +432,8 @@ mod tests {
             (857, None),
             (862, None),
             (866, None),
-            // CP437 is broken in Windows (0x81-0x84,0x86-0x90,0x98-9F are mapped to U+XX as are, but they must be undefined)
-            (874, Some(vec![0x85..0x85, 0x91..0x97, 0xA0..0xFF])),
+            // CP437 is broken in Windows (0x81-0x84,0x86-0x90,0x98-A0 are mapped to U+XX as are, but they must be undefined)
+            (874, None),
         ];
         use std::borrow::Cow;
         let default_range = Cow::from(vec![(128..255).collect::<Vec<u8>>()]);
