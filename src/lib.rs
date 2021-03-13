@@ -1,5 +1,6 @@
 pub mod code_table;
 pub mod code_table_type;
+pub use ahash;
 use ahash::AHashMap;
 use std::borrow::Cow;
 use std::convert::Into;
