@@ -14,7 +14,7 @@ repository = "https://github.com/tats-u/rust-oem-cp/"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ahash = "0.4.4"
+ahash = "0.7.2"
 lazy_static = "1.4.0"
 
 [target.'cfg(windows)'.dev-dependencies]
