@@ -39,7 +39,7 @@ Add `oem_cp` to the dependencies in `Cargo.toml` in your projects.
 ```toml
 [dependencies]
 # *snip*
-oem_cp = "<2"
+oem_cp = "1"
 # *snip*
 ```
 
