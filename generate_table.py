@@ -21,8 +21,8 @@ def print_header(timestamp: str, f: TextIOBase = stdout):
         f"""\
 //! Code table
 //! Generated at {timestamp}
+use super::OEMCPHashMap;
 use super::code_table_type::TableType;
-use ahash::AHashMap;
 use lazy_static::lazy_static;
 use TableType::*;""",
         file=f,
@@ -71,8 +71,8 @@ lazy_static! {""",
         print(
             f"    /// Encoding table (Unicode to CP{codepage})\n"
             f"    pub static ref ENCODING_TABLE_CP{codepage}"
-            ": AHashMap<char, u8> = {\n"
-            "        let mut m = AHashMap::new();",
+            ": OEMCPHashMap<char, u8> = {\n"
+            "        let mut m = OEMCPHashMap::new();",
             file=f,
         )
         for unicode, dest in m.items():
@@ -121,8 +121,8 @@ lazy_static! {
     ///     panic!("CP874 must be defined in DECODING_TABLE_CP_MAP");
     /// }
     /// ```
-    pub static ref DECODING_TABLE_CP_MAP: AHashMap<u16, TableType> = {
-        let mut map = AHashMap::new();""",
+    pub static ref DECODING_TABLE_CP_MAP: OEMCPHashMap<u16, TableType> = {
+        let mut map = OEMCPHashMap::new();""",
         file=f,
     )
     for (codepage, table) in table_map.items():
@@ -163,8 +163,8 @@ lazy_static! {
     ///     panic!("CP437 must be registerd in ENCODING_TABLE_CP_MAP");
     /// }
     /// ```
-    pub static ref ENCODING_TABLE_CP_MAP: AHashMap<u16, &'static AHashMap<char, u8>> = {
-        let mut m = AHashMap::new();""",
+    pub static ref ENCODING_TABLE_CP_MAP: OEMCPHashMap<u16, &'static OEMCPHashMap<char, u8>> = {
+        let mut m = OEMCPHashMap::new();""",
         file=f,
     )
     for codepage, m in reverse_map.items():
