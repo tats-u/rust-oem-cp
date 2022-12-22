@@ -26,4 +26,3 @@ jobs:
       run: cargo test --verbose
     - name: Run clippy
       run: cargo clippy -- -D warnings
-      continue-on-error: true

@@ -1,4 +1,5 @@
-pub mod code_table;
+include!(concat!(env!("OUT_DIR"), "/code_table.rs"));
+
 pub mod code_table_type;
 use ahash::AHashMap;
 /// The type of hashmap used in this crate.
