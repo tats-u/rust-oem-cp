@@ -73,7 +73,7 @@ pub fn decode_string_incomplete_table_checked<'a, T: Into<Cow<'a, [u8]>>>(
             decoding_table[(*byte & 127) as usize]?
         });
     }
-    return Some(ret);
+    Some(ret)
 }
 
 /// Decode SBCS (single byte character set) bytes (with undefined codepoints)
@@ -144,7 +144,7 @@ pub fn encode_string_checked<'a, T: Into<Cow<'a, str>>>(
             *encoding_table.get(&c)?
         });
     }
-    return Some(ret);
+    Some(ret)
 }
 
 /// Encode Unicode string in SBCS (single byte character set)
