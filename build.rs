@@ -37,6 +37,9 @@ fn generate_tables() -> io::Result<()> {
 
     for (code_page, table) in &code_tables.tables {
         write_decoding(&mut output, *code_page, table)?;
+    }
+
+    for (code_page, table) in &code_tables.tables {
         write_encoding(&mut output, *code_page, table)?;
     }
 
@@ -112,7 +115,6 @@ pub mod code_table {{
 
 use super::code_table_type::TableType;
 use super::OEMCPHashMap;
-use lazy_static::lazy_static;
 use TableType::*;
 "
     )
@@ -141,13 +143,7 @@ fn write_decoding(mut dst: impl Write, code_page: u16, table: &Table) -> io::Res
 }
 
 fn write_encoding(mut dst: impl Write, code_page: u16, table: &Table) -> io::Result<()> {
-    writeln!(
-        &mut dst,
-        "lazy_static! {{
-    /// Encoding table (Unicode to CP{code_page})
-    pub static ref ENCODING_TABLE_CP{code_page}: OEMCPHashMap<char, u8> = {{
-        let mut m = OEMCPHashMap::new();"
-    )?;
+    let mut map = phf_codegen::Map::new();
 
     match table {
         Table::Complete(table) => {
@@ -157,7 +153,7 @@ fn write_encoding(mut dst: impl Write, code_page: u16, table: &Table) -> io::Res
                 .enumerate()
                 .map(|(i, c)| (i + 0x80, c))
             {
-                writeln!(&mut dst, "        m.insert({c:?}, {i:#x});")?;
+                map.entry(c, &i.to_string());
             }
         }
         Table::Incomplete(table) => {
@@ -167,116 +163,96 @@ fn write_encoding(mut dst: impl Write, code_page: u16, table: &Table) -> io::Res
                 .enumerate()
                 .filter_map(|(i, c)| c.map(|c| (i + 0x80, c)))
             {
-                writeln!(&mut dst, "        m.insert({c:?}, {i:#x});")?;
+                map.entry(c, &i.to_string());
             }
         }
     }
 
-    writeln!(
+    write!(
         &mut dst,
-        "        m
-    }};
-}}
-"
+        "/// Encoding table (Unicode to CP{code_page})
+pub static ENCODING_TABLE_CP{code_page}: OEMCPHashMap<char, u8> = {map};",
+        map = map.build()
     )?;
 
     Ok(())
 }
 
 fn write_decoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> io::Result<()> {
-    writeln!(
-        &mut dst,
-        r#"lazy_static! {{
-    /// map from codepage to decoding table
-    ///
-    /// `.get` returns `code_table_type::{{Complete,Incomplete}}`.
-    ///
-    /// * `Complete`: the decoding table doesn't have undefined mapping.
-    /// * `Incomplete`:  it have some undefined mapping.
-    ///
-    /// This enumerate provides methods `decode_string_lossy` and `decode_string_checked`.
-    /// The following examples show the use of them.  `if let Some(decoder) = *snip* decoder.decode_string_*snip*` is convenient for practical use.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use oem_cp::code_table::{{DECODING_TABLE_CP_MAP, DECODING_TABLE_CP437}};
-    /// use oem_cp::code_table_type::TableType::*;
-    /// assert_eq!((*DECODING_TABLE_CP_MAP).get(&437).unwrap().decode_string_lossy(vec![0x31, 0xF6, 0xAB, 0x3D, 0x32]), "1÷½=2".to_string());
-    /// if let Some(cp874_table) = (*DECODING_TABLE_CP_MAP).get(&874) {{
-    ///     // means shrimp in Thai (U+E49 => 0xE9)
-    ///     assert_eq!(cp874_table.decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
-    ///     // undefined mapping 0xDB for CP874 Windows dialect (strict mode with MB_ERR_INVALID_CHARS)
-    ///     assert_eq!(cp874_table.decode_string_checked(vec![0xDB]), None);
-    /// }} else {{
-    ///     panic!("CP874 must be defined in DECODING_TABLE_CP_MAP");
-    /// }}
-    /// ```
-    pub static ref DECODING_TABLE_CP_MAP: OEMCPHashMap<u16, TableType> = {{
-        let mut m = OEMCPHashMap::new();"#
-    )?;
+    let mut map = phf_codegen::Map::new();
 
     for (code_page, table) in tables {
         let ty = match table {
             Table::Complete(_) => "Complete",
             Table::Incomplete(_) => "Incomplete",
         };
-        writeln!(
-            &mut dst,
-            "        m.insert({code_page}, {ty}(&DECODING_TABLE_CP{code_page}));"
-        )?;
+        map.entry(code_page, &format!("{ty}(&DECODING_TABLE_CP{code_page})"));
     }
 
     writeln!(
         &mut dst,
-        "        m
-    }};
-}}
-"
+        r#"/// map from codepage to decoding table
+///
+/// `.get` returns `code_table_type::{{Complete,Incomplete}}`.
+///
+/// * `Complete`: the decoding table doesn't have undefined mapping.
+/// * `Incomplete`:  it have some undefined mapping.
+///
+/// This enumerate provides methods `decode_string_lossy` and `decode_string_checked`.
+/// The following examples show the use of them.  `if let Some(decoder) = *snip* decoder.decode_string_*snip*` is convenient for practical use.
+///
+/// # Examples
+///
+/// ```
+/// use oem_cp::code_table::{{DECODING_TABLE_CP_MAP, DECODING_TABLE_CP437}};
+/// use oem_cp::code_table_type::TableType::*;
+/// assert_eq!(DECODING_TABLE_CP_MAP.get(&437).unwrap().decode_string_lossy(vec![0x31, 0xF6, 0xAB, 0x3D, 0x32]), "1÷½=2".to_string());
+/// if let Some(cp874_table) = DECODING_TABLE_CP_MAP.get(&874) {{
+///     // means shrimp in Thai (U+E49 => 0xE9)
+///     assert_eq!(cp874_table.decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
+///     // undefined mapping 0xDB for CP874 Windows dialect (strict mode with MB_ERR_INVALID_CHARS)
+///     assert_eq!(cp874_table.decode_string_checked(vec![0xDB]), None);
+/// }} else {{
+///     panic!("CP874 must be defined in DECODING_TABLE_CP_MAP");
+/// }}
+/// ```
+pub static DECODING_TABLE_CP_MAP: OEMCPHashMap<u16, TableType> = {map};"#,
+        map = map.build()
     )?;
 
     Ok(())
 }
 
 fn write_encoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> io::Result<()> {
-    writeln!(
-        &mut dst,
-        r#"lazy_static! {{
-    /// map from codepage to encoding table
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use oem_cp::code_table::{{ENCODING_TABLE_CP_MAP, ENCODING_TABLE_CP437}};
-    /// assert_eq!((*ENCODING_TABLE_CP_MAP).get(&437), Some(&&*ENCODING_TABLE_CP437));
-    /// // CP932 (Shift-JIS; Japanese MBCS) is unsupported
-    /// assert_eq!((*ENCODING_TABLE_CP_MAP).get(&932), None);
-    ///
-    /// use oem_cp::encode_string_checked;
-    ///
-    /// if let Some(cp437_table) = (*ENCODING_TABLE_CP_MAP).get(&437) {{
-    ///     assert_eq!(encode_string_checked("π≈22/7", cp437_table), Some(vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
-    /// }} else {{
-    ///     panic!("CP437 must be registerd in ENCODING_TABLE_CP_MAP");
-    /// }}
-    /// ```
-    pub static ref ENCODING_TABLE_CP_MAP: OEMCPHashMap<u16, &'static OEMCPHashMap<char, u8>> = {{
-        let mut m = OEMCPHashMap::new();"#
-    )?;
+    let mut map = phf_codegen::Map::new();
 
     for (code_page, _table) in tables {
-        writeln!(
-            &mut dst,
-            "        m.insert({code_page}, &*ENCODING_TABLE_CP{code_page});"
-        )?;
+        map.entry(*code_page, &format!("&ENCODING_TABLE_CP{code_page}"));
     }
 
     writeln!(
         &mut dst,
-        "        m
-    }};
-}}
-"
+        r#"/// map from codepage to encoding table
+///
+/// # Examples
+///
+/// ```
+/// # use std::ptr;
+/// use oem_cp::code_table::{{ENCODING_TABLE_CP_MAP, ENCODING_TABLE_CP437}};
+/// assert!(ptr::eq(*ENCODING_TABLE_CP_MAP.get(&437).unwrap(), &ENCODING_TABLE_CP437));
+/// // CP932 (Shift-JIS; Japanese MBCS) is unsupported
+/// assert!(ENCODING_TABLE_CP_MAP.get(&932).is_none());
+///
+/// use oem_cp::encode_string_checked;
+///
+/// if let Some(cp437_table) = ENCODING_TABLE_CP_MAP.get(&437) {{
+///     assert_eq!(encode_string_checked("π≈22/7", cp437_table), Some(vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
+/// }} else {{
+///     panic!("CP437 must be registerd in ENCODING_TABLE_CP_MAP");
+/// }}
+/// ```
+pub static ENCODING_TABLE_CP_MAP: OEMCPHashMap<u16, &'static OEMCPHashMap<char, u8>> = {map};"#,
+        map = map.build()
     )?;
 
     Ok(())

@@ -1,12 +1,11 @@
 include!(concat!(env!("OUT_DIR"), "/code_table.rs"));
 
 pub mod code_table_type;
-use ahash::AHashMap;
 /// The type of hashmap used in this crate.
 ///
 /// The hash library may be changed in the future release.
 /// Make sure to use only APIs compatible with `std::collections::HashMap`.
-pub type OEMCPHashMap<K, V> = AHashMap<K, V>;
+pub type OEMCPHashMap<K, V> = phf::Map<K, V>;
 use std::borrow::Cow;
 use std::convert::Into;
 
@@ -127,11 +126,11 @@ pub fn decode_string_incomplete_table_lossy<'a, T: Into<Cow<'a, [u8]>>>(
 /// ```
 /// use oem_cp::encode_string_checked;
 /// use oem_cp::code_table::{ENCODING_TABLE_CP437, ENCODING_TABLE_CP737};
-/// assert_eq!(encode_string_checked("π≈22/7", &*ENCODING_TABLE_CP437), Some(vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
+/// assert_eq!(encode_string_checked("π≈22/7", &ENCODING_TABLE_CP437), Some(vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
 /// // Archimedes in Greek
-/// assert_eq!(encode_string_checked("Αρχιμήδης", &*ENCODING_TABLE_CP737), Some(vec![0x80, 0xA8, 0xAE, 0xA0, 0xA3, 0xE3, 0x9B, 0x9E, 0xAA]));
+/// assert_eq!(encode_string_checked("Αρχιμήδης", &ENCODING_TABLE_CP737), Some(vec![0x80, 0xA8, 0xAE, 0xA0, 0xA3, 0xE3, 0x9B, 0x9E, 0xAA]));
 /// // Japanese characters are not defined in CP437
-/// assert_eq!(encode_string_checked("日本語ja_jp", &*ENCODING_TABLE_CP437), None);
+/// assert_eq!(encode_string_checked("日本語ja_jp", &ENCODING_TABLE_CP437), None);
 /// ```
 pub fn encode_string_checked<'a, T: Into<Cow<'a, str>>>(
     src: T,
@@ -162,12 +161,12 @@ pub fn encode_string_checked<'a, T: Into<Cow<'a, str>>>(
 /// ```
 /// use oem_cp::encode_string_lossy;
 /// use oem_cp::code_table::{ENCODING_TABLE_CP437, ENCODING_TABLE_CP737};
-/// assert_eq!(encode_string_lossy("π≈22/7", &*ENCODING_TABLE_CP437), vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]);
+/// assert_eq!(encode_string_lossy("π≈22/7", &ENCODING_TABLE_CP437), vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]);
 /// // Archimedes in Greek
-/// assert_eq!(encode_string_lossy("Αρχιμήδης", &*ENCODING_TABLE_CP737), vec![0x80, 0xA8, 0xAE, 0xA0, 0xA3, 0xE3, 0x9B, 0x9E, 0xAA]);
+/// assert_eq!(encode_string_lossy("Αρχιμήδης", &ENCODING_TABLE_CP737), vec![0x80, 0xA8, 0xAE, 0xA0, 0xA3, 0xE3, 0x9B, 0x9E, 0xAA]);
 /// // Japanese characters are not defined in CP437 and replaced with `?` (0x3F)
 /// // "日本語ja_jp" => "???ja_jp"
-/// assert_eq!(encode_string_lossy("日本語ja_jp", &*ENCODING_TABLE_CP437), vec![0x3F, 0x3F, 0x3F, 0x6A, 0x61, 0x5F, 0x6A, 0x70]);
+/// assert_eq!(encode_string_lossy("日本語ja_jp", &ENCODING_TABLE_CP437), vec![0x3F, 0x3F, 0x3F, 0x6A, 0x61, 0x5F, 0x6A, 0x70]);
 /// ```
 pub fn encode_string_lossy<'a, T: Into<Cow<'a, str>>>(
     src: T,
@@ -239,11 +238,11 @@ mod tests {
     fn cp437_encoding_test() {
         for (utf8_ref, cp437_ref) in &*CP437_VALID_PAIRS {
             assert_eq!(
-                &encode_string_lossy(*utf8_ref, &*ENCODING_TABLE_CP437),
+                &encode_string_lossy(*utf8_ref, &ENCODING_TABLE_CP437),
                 cp437_ref
             );
             assert_eq!(
-                &(encode_string_checked(*utf8_ref, &*ENCODING_TABLE_CP437).unwrap()),
+                &(encode_string_checked(*utf8_ref, &ENCODING_TABLE_CP437).unwrap()),
                 cp437_ref
             );
         }
@@ -261,11 +260,11 @@ mod tests {
     fn cp874_encoding_test() {
         for (utf8_ref, cp437_ref) in &*CP874_VALID_PAIRS {
             assert_eq!(
-                &encode_string_lossy(*utf8_ref, &*ENCODING_TABLE_CP874),
+                &encode_string_lossy(*utf8_ref, &ENCODING_TABLE_CP874),
                 cp437_ref
             );
             assert_eq!(
-                &(encode_string_checked(*utf8_ref, &*ENCODING_TABLE_CP874).unwrap()),
+                &(encode_string_checked(*utf8_ref, &ENCODING_TABLE_CP874).unwrap()),
                 cp437_ref
             );
         }
@@ -292,12 +291,12 @@ mod tests {
     fn windows_codepages_coverage_test() {
         for cp in &*WINDOWS_USED_CODEPAGES {
             assert!(
-                ENCODING_TABLE_CP_MAP.get(&cp).is_some(),
+                ENCODING_TABLE_CP_MAP.get(cp).is_some(),
                 "Encoding table for cp{} is not defined",
                 cp
             );
             assert!(
-                DECODING_TABLE_CP_MAP.get(&cp).is_some(),
+                DECODING_TABLE_CP_MAP.get(cp).is_some(),
                 "Decoding table for cp{} is not defined",
                 cp
             );
