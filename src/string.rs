@@ -1,5 +1,7 @@
-use std::borrow::Cow;
-use std::convert::Into;
+use alloc::borrow::Cow;
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::convert::Into;
 
 use super::code_table_type::TableType;
 use super::OEMCPHashMap;

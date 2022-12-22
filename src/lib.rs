@@ -1,7 +1,14 @@
+#![cfg_attr(not(test), no_std)]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 include!(concat!(env!("OUT_DIR"), "/code_table.rs"));
 
+#[cfg(feature = "alloc")]
 mod string;
 
+#[cfg(feature = "alloc")]
 pub use string::*;
 
 /// The type of hashmap used in this crate.
