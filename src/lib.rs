@@ -178,7 +178,7 @@ pub fn encode_string_lossy<'a, T: Into<Cow<'a, str>>>(
             if (c as u32) < 128 {
                 c as u8
             } else {
-                encoding_table.get(&c).copied().unwrap_or('?' as u8)
+                encoding_table.get(&c).copied().unwrap_or(b'?')
             }
         })
         .collect()
