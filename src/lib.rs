@@ -73,7 +73,7 @@ pub fn decode_string_incomplete_table_checked<'a, T: Into<Cow<'a, [u8]>>>(
             decoding_table[(*byte & 127) as usize]?
         });
     }
-    return Some(ret);
+    Some(ret)
 }
 
 /// Decode SBCS (single byte character set) bytes (with undefined codepoints)
@@ -144,7 +144,7 @@ pub fn encode_string_checked<'a, T: Into<Cow<'a, str>>>(
             *encoding_table.get(&c)?
         });
     }
-    return Some(ret);
+    Some(ret)
 }
 
 /// Encode Unicode string in SBCS (single byte character set)
@@ -178,10 +178,7 @@ pub fn encode_string_lossy<'a, T: Into<Cow<'a, str>>>(
             if (c as u32) < 128 {
                 c as u8
             } else {
-                encoding_table
-                    .get(&c)
-                    .map(|byte_ref| *byte_ref)
-                    .unwrap_or('?' as u8)
+                encoding_table.get(&c).copied().unwrap_or(b'?')
             }
         })
         .collect()
