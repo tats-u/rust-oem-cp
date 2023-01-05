@@ -2,7 +2,7 @@
 name = "oem_cp"
 version = "1.1.0"
 authors = ["Tatsunori Uchino <tats.u@live.jp>"]
-edition = "2018"
+edition = "2021"
 categories = ["encoding"]
 keywords = ["encoding", "charset"]
 license = "MIT"
@@ -13,9 +13,20 @@ repository = "https://github.com/tats-u/rust-oem-cp/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["alloc"]
+alloc = []
+
 [dependencies]
-ahash = "0.7.2"
-lazy_static = "1.4.0"
+phf = { version = "0.11", default-features = false }
+
+[build-dependencies]
+phf_codegen = "0.11"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+lazy_static = "1.4"
 
 [target.'cfg(windows)'.dev-dependencies]
 winapi = { version = "0.3.9", features = ["winnls", "stringapiset", "winerror","errhandlingapi"] }
