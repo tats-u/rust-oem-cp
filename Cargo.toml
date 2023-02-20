@@ -30,5 +30,4 @@ lazy_static = "1.4"
 
 [target.'cfg(windows)'.dev-dependencies]
 winapi = { version = "0.3.9", features = ["winnls", "stringapiset", "winerror","errhandlingapi"] }
-hfs_nfd = "<2"
 itertools = "<2"
