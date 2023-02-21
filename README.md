@@ -1,7 +1,7 @@
 # Rust library for OEM Code pages
 
-![CI (master)](<https://github.com/tats-u/rust-oem-cp/workflows/CI%20(master)/badge.svg>)
-![CI (Release)](<https://github.com/tats-u/rust-oem-cp/workflows/CI%20(Release)/badge.svg>)
+[![CI (master)](https://github.com/tats-u/rust-oem-cp/workflows/CI%20(master)/badge.svg)](https://github.com/tats-u/rust-oem-cp/actions/workflows/master.yml)
+[![CI (Release)](https://github.com/tats-u/rust-oem-cp/workflows/CI%20(Release)/badge.svg)](https://github.com/tats-u/rust-oem-cp/actions/workflows/release.yml)
 [![oem_cp at crates.io](https://img.shields.io/crates/v/oem_cp.svg)](https://crates.io/crates/oem_cp)
 [![oem_cp at docs.rs](https://docs.rs/oem_cp/badge.svg)](https://docs.rs/oem_cp)
 
