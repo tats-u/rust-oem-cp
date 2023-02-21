@@ -7,7 +7,7 @@
 
 This library handles many SBCS (single byte character sets) that are used as OEM code pages. OEM code pages are used for encoding file names in ZIP archives and characters in the terminal in Windows today.
 
-# Supported code pages
+## Supported code pages
 
 | Code Page | Note                                             |
 | --------- | ------------------------------------------------ |
@@ -32,7 +32,7 @@ This library handles many SBCS (single byte character sets) that are used as OEM
 
 Notes are quoted from https://docs.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
 
-# How to use
+## How to use
 
 Add `oem_cp` to the dependencies in `Cargo.toml` in your projects.
 
@@ -43,11 +43,11 @@ oem_cp = "2"
 # *snip*
 ```
 
-# Examples
+## Examples
 
-## Use specific code pages
+### Use specific code pages
 
-### Encoding Unicode string to SBCS bytes
+#### Encoding Unicode string to SBCS bytes
 
 ```rust
 use oem_cp::{encoding_string_checked, encoding_string_lossy};
@@ -62,7 +62,7 @@ assert_eq!(encoding_string_checked("½+¼=¾", &*ENCODING_TABLE_CP437), None);
 assert_eq!(encoding_string_lossy("½+¼=¾", &*ENCODING_TABLE_CP437), vec![0xAB, 0x2B, 0xAC, 0x3D, 0x3F]);
 ```
 
-### Decoding SBCS bytes to Unicode string
+#### Decoding SBCS bytes to Unicode string
 
 ```rust
 use oem_cp::{decode_string_complete_table, decode_string_incomplete_table_checked, decode_string_incomplete_table_lossy};
@@ -82,7 +82,7 @@ assert_eq!(&decode_string_incomplete_table_lossy(vec![0xA1, 0xD8, 0xE9, 0xA7], &
 assert_eq!(&decode_string_incomplete_table_lossy(vec![0x30, 0xDB], &DECODING_TABLE_CP874), "0\u{FFFD}");
 ```
 
-## Select appropriate codepage from integer
+### Select appropriate codepage from integer
 
 ```rust
 use oem_cp::code_table::{ENCODING_TABLE_CP_MAP, DECODING_TABLE_CP_MAP};
@@ -108,16 +108,16 @@ if let Some(cp437_table) = (*ENCODING_TABLE_CP_MAP).get(&437) {
 }
 ```
 
-# Support for ANSI/EBCDIC/MBCS code pages
+## Support for ANSI/EBCDIC/MBCS code pages
 
 For ANSI (125x) and MBCS (932-950; for CJK languages) code pages, please use [encoding_rs](https://github.com/hsivonen/encoding_rs) instead.
 
 This library is only for extended ASCII encodings (0x00-0x80 must be compatible with ASCII), so EBCDIC encodings will never be supported.
 
-# Symbols from 0x01 to 0x19
+## Symbols from 0x01 to 0x19
 
 This library doesn't support [symbols mapped from 0x01 to 0x19 in CP437](https://en.wikipedia.org/wiki/Code_page_437). 0x01-0x19 are mapped to U+0001-U+0019. If you prefer symbols, use [codepage_437](https://github.com/nabijaczleweli/codepage-437) instead.
 
-# Licenses
+## Licenses
 
 MIT
