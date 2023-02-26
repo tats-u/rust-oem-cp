@@ -243,52 +243,59 @@ pub fn encode_string_lossy<'a, T: Into<Cow<'a, str>>>(
 mod tests {
     use super::*;
     use crate::code_table::*;
-    use lazy_static::lazy_static;
+    use once_cell::sync::Lazy;
 
-    lazy_static! {
-        static ref CP437_VALID_PAIRS: Vec<(&'static str, Vec<u8>)> = vec![
+    static CP437_VALID_PAIRS: Lazy<Vec<(&'static str, Vec<u8>)>> = Lazy::new(|| {
+        vec![
             ("√α²±ß²", vec![0xFB, 0xE0, 0xFD, 0xF1, 0xE1, 0xFD]),
             ("és", vec![0x82, 0x73]),
             ("più", vec![0x70, 0x69, 0x97]),
-            ("½÷¼=2", vec![0xAB, 0xF6, 0xAC, 0x3D, 0x32])
-        ];
-        static ref CP874_VALID_PAIRS: Vec<(&'static str, Vec<u8>)> = vec![
+            ("½÷¼=2", vec![0xAB, 0xF6, 0xAC, 0x3D, 0x32]),
+        ]
+    });
+    static CP874_VALID_PAIRS: Lazy<Vec<(&'static str, Vec<u8>)>> = Lazy::new(|| {
+        vec![
+            // cspell: disable
             (
                 "ราชอาณาจักรไท",
-                vec![0xC3, 0xD2, 0xAA, 0xCD, 0xD2, 0xB3, 0xD2, 0xA8, 0xD1, 0xA1, 0xC3, 0xE4, 0xB7]
+                vec![
+                    0xC3, 0xD2, 0xAA, 0xCD, 0xD2, 0xB3, 0xD2, 0xA8, 0xD1, 0xA1, 0xC3, 0xE4, 0xB7,
+                ],
             ),
             (
                 "ต้มยำกุ้ง",
-                vec![0xB5, 0xE9, 0xC1, 0xC2, 0xD3, 0xA1, 0xD8, 0xE9, 0xA7]
-            )
-        ];
-        static ref CP857_VALID_PAIRS: Vec<(&'static str, Vec<u8>)> = vec![
+                vec![0xB5, 0xE9, 0xC1, 0xC2, 0xD3, 0xA1, 0xD8, 0xE9, 0xA7],
+            ),
+            // cspell: enable
+        ]
+    });
+    static CP857_VALID_PAIRS: Lazy<Vec<(&'static str, Vec<u8>)>> = Lazy::new(|| {
+        vec![
+            // cspell: disable
             ("½÷¼=2", vec![0xAB, 0xF6, 0xAC, 0x3D, 0x32]),
-            ("¼×3=¾", vec![0xAC, 0xE8,0x33,0x3D,0xF3]),
-            ("İran", vec![0x98, 0x72,0x61,0x6E]),
-            ("ırmak", vec![0x8D,0x72,0x6D,0x61,0x6B]),
-            ("iş", vec![0x69,0x9F]),
-        ];
-        /// OEM SBCSs used in some languages (locales)
-        static ref WINDOWS_USED_CODEPAGES: Vec<u16> = vec![
-            437,
-            // 720, // TODO: implement for locales using Arabic alphabets
-            737,
-            775,
-            850,
-            852,
-            855,
-            857,
-            862,
-            866,
-            874,
-        ];
-        static ref WINDOWS_CONVERSION_VALID_TESTCASES: Vec<(u16, Vec<(u8, char)>)> = vec![
-            (437, vec![(0x82, 'é'), (0x9D, '¥'), (0xFB, '√')]),
-            (850, vec![(0xD0, 'ð'), (0xF3, '¾'), (0x9E, '×')]),
-            (874, vec![(0x80, '€'), (0xDF, '฿'), (0xA1, 'ก')]),
-        ];
-    }
+            ("¼×3=¾", vec![0xAC, 0xE8, 0x33, 0x3D, 0xF3]),
+            ("İran", vec![0x98, 0x72, 0x61, 0x6E]),
+            ("ırmak", vec![0x8D, 0x72, 0x6D, 0x61, 0x6B]),
+            ("iş", vec![0x69, 0x9F]),
+            // cspell: enable
+        ]
+    });
+    /// OEM SBCSs used in some languages (locales)
+    static WINDOWS_USED_CODEPAGES: Lazy<Vec<u16>> = Lazy::new(|| {
+        vec![
+            437, // 720, // TODO: implement for locales using Arabic alphabets
+            737, 775, 850, 852, 855, 857, 862, 866, 874,
+        ]
+    });
+    #[allow(clippy::type_complexity)]
+    static WINDOWS_CONVERSION_VALID_TESTCASES: Lazy<Vec<(u16, Vec<(u8, char)>)>> =
+        Lazy::new(|| {
+            vec![
+                (437, vec![(0x82, 'é'), (0x9D, '¥'), (0xFB, '√')]),
+                (850, vec![(0xD0, 'ð'), (0xF3, '¾'), (0x9E, '×')]),
+                (874, vec![(0x80, '€'), (0xDF, '฿'), (0xA1, 'ก')]),
+            ]
+        });
     #[test]
     fn cp437_encoding_test() {
         for (utf8_ref, cp437_ref) in &*CP437_VALID_PAIRS {
@@ -409,12 +416,12 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn windows_to_unicode_char_test() {
-        lazy_static! {
-            static ref WINDOWS_CONVERSION_INVALID_TESTCASES: Vec<(u16, Vec<u8>)> = vec![
+        static WINDOWS_CONVERSION_INVALID_TESTCASES: Lazy<Vec<(u16, Vec<u8>)>> = Lazy::new(|| {
+            vec![
                 (857, vec![0xE7, 0xF2]),
-                (874, vec![0xDB, 0xDC, 0xDD, 0xDE, 0xFC, 0xFD, 0xFE, 0xFF])
-            ];
-        }
+                (874, vec![0xDB, 0xDC, 0xDD, 0xDE, 0xFC, 0xFD, 0xFE, 0xFF]),
+            ]
+        });
         use itertools::join;
         for (codepage, testcases) in &*WINDOWS_CONVERSION_VALID_TESTCASES {
             let result = testcases
@@ -500,7 +507,7 @@ mod tests {
                 let msg = format!("Decoding table for cp{codepage} is not defined");
                 let library_result = DECODING_TABLE_CP_MAP
                     .get(codepage)
-                    .expect(&*msg)
+                    .expect(&msg)
                     .decode_string_lossy(testing);
                 let windows_result = testing
                     .iter()
