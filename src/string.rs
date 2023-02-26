@@ -347,6 +347,35 @@ mod tests {
             );
         }
     }
+    #[test]
+    fn cp857_encoding_test() {
+        for (utf8_ref, cp857_ref) in &*CP857_VALID_PAIRS {
+            assert_eq!(
+                &encode_string_lossy(*utf8_ref, &ENCODING_TABLE_CP857),
+                cp857_ref
+            );
+            assert_eq!(
+                &(encode_string_checked(*utf8_ref, &ENCODING_TABLE_CP857).unwrap()),
+                cp857_ref
+            );
+        }
+    }
+    #[test]
+    fn cp857_decoding_test() {
+        for (utf8_ref, cp857_ref) in &*CP857_VALID_PAIRS {
+            assert_eq!(
+                &decode_string_incomplete_table_lossy(cp857_ref, &DECODING_TABLE_CP857),
+                *utf8_ref
+            );
+            assert_eq!(
+                &*(decode_string_incomplete_table_checked(cp857_ref, &DECODING_TABLE_CP857)
+                    .unwrap_or_else(|| panic!(
+                        "{cp857_ref:?} (intended for {utf8_ref:?}) is not a valid cp857 bytes."
+                    ))),
+                *utf8_ref
+            );
+        }
+    }
 
     #[test]
     fn windows_codepages_coverage_test() {
