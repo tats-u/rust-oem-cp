@@ -104,7 +104,7 @@ class GitHubICUTableGenerator(ITableGenerator):
         self.prefix = prefix
 
 
-class CombinatingGenerator(ITableGenerator):
+class CombinedGenerator(ITableGenerator):
     def __init__(self, table: List[Tuple[slice, ITableGenerator]]):
         self.table: List[Tuple[slice, ITableGenerator]] = table
 
@@ -144,7 +144,7 @@ def main():
     unicode_org = UnicodeOrgTableGenerator()
     icu_ibm = GitHubICUTableGenerator("ibm")
     icu_win = GitHubICUTableGenerator("windows")
-    cp874 = CombinatingGenerator(
+    cp874 = CombinedGenerator(
         [(slice(None), unicode_org), (slice(0x80, 0xA0), icu_win)]
     )
     dic = {}
