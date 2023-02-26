@@ -320,14 +320,14 @@ mod tests {
     }
     #[test]
     fn cp874_encoding_test() {
-        for (utf8_ref, cp437_ref) in &*CP874_VALID_PAIRS {
+        for (utf8_ref, cp874_ref) in &*CP874_VALID_PAIRS {
             assert_eq!(
                 &encode_string_lossy(*utf8_ref, &ENCODING_TABLE_CP874),
-                cp437_ref
+                cp874_ref
             );
             assert_eq!(
                 &(encode_string_checked(*utf8_ref, &ENCODING_TABLE_CP874).unwrap()),
-                cp437_ref
+                cp874_ref
             );
         }
     }
