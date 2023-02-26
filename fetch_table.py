@@ -48,7 +48,7 @@ class GitHubICUTableGenerator(ITableGenerator):
     UCM_SEARCH_REGEX = re.compile(
         r"(?<=CHARMAP\n)(<U[0-9A-F]+> \\x[0-9A-F]+ \|\d\n)+(?=END CHARMAP)"
     )
-    # ones other than 0 don't make sence
+    # ones other than 0 don't make sense
     UCM_PARSING_REGEX = re.compile(r"<U([0-9A-F]+)> \\x([0-9A-F]+) \|0")
 
     def search_ucm_file(self, search: str) -> str:

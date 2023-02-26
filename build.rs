@@ -248,7 +248,7 @@ fn write_encoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> 
 /// if let Some(cp437_table) = ENCODING_TABLE_CP_MAP.get(&437) {{
 ///     assert_eq!(encode_string_checked("π≈22/7", cp437_table), Some(vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
 /// }} else {{
-///     panic!("CP437 must be registerd in ENCODING_TABLE_CP_MAP");
+///     panic!("CP437 must be registered in ENCODING_TABLE_CP_MAP");
 /// }}
 /// ```
 pub static ENCODING_TABLE_CP_MAP: OEMCPHashMap<u16, &'static OEMCPHashMap<char, u8>> = {map};"#,
