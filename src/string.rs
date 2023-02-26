@@ -334,8 +334,7 @@ mod tests {
             assert_eq!(
                 &*(decode_string_incomplete_table_checked(cp874_ref, &DECODING_TABLE_CP874)
                     .unwrap_or_else(|| panic!(
-                        "{:?} (intended for {:?}) is not a valid cp874 bytes.",
-                        cp874_ref, utf8_ref
+                        "{cp874_ref:?} (intended for {utf8_ref:?}) is not a valid cp874 bytes."
                     ))),
                 *utf8_ref
             );
@@ -347,13 +346,11 @@ mod tests {
         for cp in &*WINDOWS_USED_CODEPAGES {
             assert!(
                 ENCODING_TABLE_CP_MAP.get(cp).is_some(),
-                "Encoding table for cp{} is not defined",
-                cp
+                "Encoding table for cp{cp} is not defined",
             );
             assert!(
                 DECODING_TABLE_CP_MAP.get(cp).is_some(),
-                "Decoding table for cp{} is not defined",
-                cp
+                "Decoding table for cp{cp} is not defined",
             );
         }
     }
@@ -386,10 +383,7 @@ mod tests {
                 if GetLastError() == ERROR_NO_UNICODE_TRANSLATION {
                     return None;
                 }
-                panic!(
-                    "MultiByteToWideChar (size checking) for 0x{:X} failed in cp{}",
-                    byte, codepage
-                );
+                panic!("MultiByteToWideChar (size checking) for 0x{byte:X} failed in cp{codepage}");
             }
             win_decode_buf = vec![0; win_decode_len as usize];
             let win_decode_status = MultiByteToWideChar(
@@ -402,11 +396,7 @@ mod tests {
             );
             assert_eq!(
                 win_decode_status, win_decode_len,
-                "MultiByteToWideChar (writing) failed for 0x{:X} in cp{} (size checking returned {} / writing returned {})",
-                byte,
-                codepage,
-                win_decode_len,
-                win_decode_status
+                "MultiByteToWideChar (writing) failed for 0x{byte:X} in cp{codepage} (size checking returned {win_decode_len} / writing returned {win_decode_status})"
             );
         }
         let string_buf = String::from_utf16(&win_decode_buf).unwrap();
@@ -448,8 +438,7 @@ mod tests {
                             .map(|c| c != *target)
                             .unwrap_or(true))
                         .map(|((from, target), converted)| format!(
-                            "0x{:X} => {:?} (target) / {:?} (Windows)",
-                            from, target, converted
+                            "0x{from:X} => {target:?} (target) / {converted:?} (Windows)"
                         )),
                     ", "
                 )
@@ -508,7 +497,7 @@ mod tests {
                 })
                 .unwrap_or(default_range.clone());
             for testing in testing_ranges.as_ref() {
-                let msg = format!("Decoding table for cp{} is not defined", codepage);
+                let msg = format!("Decoding table for cp{codepage} is not defined");
                 let library_result = DECODING_TABLE_CP_MAP
                     .get(codepage)
                     .expect(&*msg)
@@ -538,8 +527,7 @@ mod tests {
                             .zip(library_result.chars().zip(windows_result.chars()))
                             .filter(|(_, (l, w))| l != w)
                             .map(|(from, (lib, win))| format!(
-                                "0x{:X} => {:?} (library) != {:?} (Windows)",
-                                from, lib, win
+                                "0x{from:X} => {lib:?} (library) != {win:?} (Windows)"
                             )),
                         ", "
                     )
