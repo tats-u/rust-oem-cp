@@ -1,7 +1,5 @@
-use alloc::borrow::Cow;
 use alloc::string::String;
 use alloc::vec::Vec;
-use core::convert::Into;
 
 use super::code_table_type::TableType;
 use super::OEMCPHashMap;
@@ -30,7 +28,7 @@ impl TableType {
     /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows (strict mode)
     /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_checked(vec![0x30, 0xDB]), None);
     /// ```
-    pub fn decode_string_checked<'a, T: Into<Cow<'a, [u8]>>>(&self, src: T) -> Option<String> {
+    pub fn decode_string_checked(&self, src: &[u8]) -> Option<String> {
         match self {
             Complete(table_ref) => Some(decode_string_complete_table(src, table_ref)),
             Incomplete(table_ref) => decode_string_incomplete_table_checked(src, table_ref),
@@ -57,7 +55,7 @@ impl TableType {
     /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows (strict mode)
     /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_lossy(vec![0x30, 0xDB]), "0\u{FFFD}".to_string());
     /// ```
-    pub fn decode_string_lossy<'a, T: Into<Cow<'a, [u8]>>>(&self, src: T) -> String {
+    pub fn decode_string_lossy(&self, src: &[u8]) -> String {
         match self {
             Complete(table_ref) => decode_string_complete_table(src, table_ref),
             Incomplete(table_ref) => decode_string_incomplete_table_lossy(src, table_ref),
@@ -80,12 +78,8 @@ impl TableType {
 ///
 /// assert_eq!(&decode_string_complete_table(vec![0xFB, 0xAC, 0x3D, 0xAB], &DECODING_TABLE_CP437), "√¼=½");
 /// ```
-pub fn decode_string_complete_table<'a, T: Into<Cow<'a, [u8]>>>(
-    src: T,
-    decoding_table: &[char; 128],
-) -> String {
-    src.into()
-        .iter()
+pub fn decode_string_complete_table(src: &[u8], decoding_table: &[char; 128]) -> String {
+    src.iter()
         .map(|byte| {
             if *byte < 128 {
                 *byte as char
@@ -116,12 +110,12 @@ pub fn decode_string_complete_table<'a, T: Into<Cow<'a, [u8]>>>(
 /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows
 /// assert_eq!(decode_string_incomplete_table_checked(vec![0x30, 0xDB], &DECODING_TABLE_CP874), None);
 /// ```
-pub fn decode_string_incomplete_table_checked<'a, T: Into<Cow<'a, [u8]>>>(
-    src: T,
+pub fn decode_string_incomplete_table_checked(
+    src: &[u8],
     decoding_table: &[Option<char>; 128],
 ) -> Option<String> {
     let mut ret = String::new();
-    for byte in src.into().iter() {
+    for byte in src.iter() {
         ret.push(if *byte < 128 {
             *byte as char
         } else {
@@ -151,12 +145,11 @@ pub fn decode_string_incomplete_table_checked<'a, T: Into<Cow<'a, [u8]>>>(
 /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows
 /// assert_eq!(&decode_string_incomplete_table_lossy(vec![0x30, 0xDB], &DECODING_TABLE_CP874), "0\u{FFFD}");
 /// ```
-pub fn decode_string_incomplete_table_lossy<'a, T: Into<Cow<'a, [u8]>>>(
-    src: T,
+pub fn decode_string_incomplete_table_lossy(
+    src: &[u8],
     decoding_table: &[Option<char>; 128],
 ) -> String {
-    src.into()
-        .iter()
+    src.iter()
         .map(|byte| {
             if *byte < 128 {
                 *byte as char
@@ -187,12 +180,12 @@ pub fn decode_string_incomplete_table_lossy<'a, T: Into<Cow<'a, [u8]>>>(
 /// // Japanese characters are not defined in CP437
 /// assert_eq!(encode_string_checked("日本語ja_jp", &ENCODING_TABLE_CP437), None);
 /// ```
-pub fn encode_string_checked<'a, T: Into<Cow<'a, str>>>(
-    src: T,
+pub fn encode_string_checked(
+    src: &str,
     encoding_table: &OEMCPHashMap<char, u8>,
 ) -> Option<Vec<u8>> {
     let mut ret = Vec::new();
-    for c in src.into().chars() {
+    for c in src.chars() {
         ret.push(if (c as u32) < 128 {
             c as u8
         } else {
@@ -223,12 +216,8 @@ pub fn encode_string_checked<'a, T: Into<Cow<'a, str>>>(
 /// // "日本語ja_jp" => "???ja_jp"
 /// assert_eq!(encode_string_lossy("日本語ja_jp", &ENCODING_TABLE_CP437), vec![0x3F, 0x3F, 0x3F, 0x6A, 0x61, 0x5F, 0x6A, 0x70]);
 /// ```
-pub fn encode_string_lossy<'a, T: Into<Cow<'a, str>>>(
-    src: T,
-    encoding_table: &OEMCPHashMap<char, u8>,
-) -> Vec<u8> {
-    src.into()
-        .chars()
+pub fn encode_string_lossy(src: &str, encoding_table: &OEMCPHashMap<char, u8>) -> Vec<u8> {
+    src.chars()
         .map(|c| {
             if (c as u32) < 128 {
                 c as u8
@@ -399,7 +388,7 @@ mod tests {
     /// * `codepage` - code page
     #[cfg(windows)]
     fn windows_to_unicode_char(byte: u8, codepage: u16) -> Option<char> {
-let input_buf = [byte];
+        let input_buf = [byte];
         let mut win_decode_buf: Vec<u16>;
         unsafe {
             use std::ptr::null_mut;
