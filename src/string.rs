@@ -399,7 +399,7 @@ mod tests {
     /// * `codepage` - code page
     #[cfg(windows)]
     fn windows_to_unicode_char(byte: u8, codepage: u16) -> Option<char> {
-        let input_buf = [byte];
+let input_buf = [byte];
         let mut win_decode_buf: Vec<u16>;
         unsafe {
             use std::ptr::null_mut;
@@ -505,21 +505,28 @@ mod tests {
     #[test]
     fn compare_to_winapi_decoding_test() {
         let windows_testing_codepages: Vec<(u16, Option<Vec<std::ops::Range<u8>>>)> = vec![
+            // Windows is the absolute reference because Unix-like OSes has already been migrated to UTF-8
             (437, None),
-            // (720, None),
+            (720, None),
             (737, None),
             (775, None),
             (850, None),
             (852, None),
             (855, None),
             (857, None),
+            (858, None),
+            (860, None),
+            (861, None),
             (862, None),
+            (863, None),
+            (864, None),
+            (865, None),
             (866, None),
-            // CP437 is broken in Windows (0x81-0x84,0x86-0x90,0x98-A0 are mapped to U+XX as are, but they must be undefined)
+            (869, None),
             (874, None),
         ];
         use std::borrow::Cow;
-        let default_range = Cow::from(vec![(128..255).collect::<Vec<u8>>()]);
+        let default_range = vec![(128..255).collect::<Vec<u8>>()];
         use itertools::join;
         for (codepage, testing_ranges) in &*windows_testing_codepages {
             let testing_ranges = testing_ranges
@@ -531,8 +538,8 @@ mod tests {
                             .collect::<Vec<Vec<u8>>>(),
                     )
                 })
-                .unwrap_or(default_range.clone());
-            for testing in testing_ranges.as_ref() {
+                .unwrap_or(Cow::from(&default_range));
+            for testing in testing_ranges.into_iter() {
                 let msg = format!("Decoding table for cp{codepage} is not defined");
                 let library_result = DECODING_TABLE_CP_MAP
                     .get(codepage)
@@ -563,10 +570,11 @@ mod tests {
                             .zip(library_result.chars().zip(windows_result.chars()))
                             .filter(|(_, (l, w))| l != w)
                             .map(|(from, (lib, win))| format!(
-                                "0x{from:X} => {lib:?} (library) != {win:?} (Windows)"
+                                "0x{:X} => {:?} (U+{:04X}) (library) != {:?} (U+{:04X}) (Windows)",
+                                from, lib, lib as u32, win, win as u32
                             )),
-                        ", "
-                    )
+                        "\n"
+                    ),
                 );
             }
         }

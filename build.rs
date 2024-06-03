@@ -61,25 +61,55 @@ fn open_output() -> io::Result<BufWriter<File>> {
     Ok(output)
 }
 
+/// Opens `assets/code_tables.json`, and organizes and returns its contents
 fn parse_code_tables() -> io::Result<CodeTables> {
-    let path = {
+    let (path, patch_path) = {
         let mut path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
         path.push("assets");
+        let mut path2 = path.clone();
         path.push("code_tables.json");
-        path
+        path2.push("code_tables_patch_win.json");
+        (path, path2)
     };
     let file = BufReader::new(File::open(path)?);
+    let patch_file = BufReader::new(File::open(patch_path)?);
 
+    /// Raw data structure defined in `assets/code_tables.json`
     #[derive(Deserialize)]
     struct JsonCodeTables {
         created: String,
         tables: HashMap<String, Vec<Option<u32>>>,
     }
+
     let JsonCodeTables { created, tables } = serde_json::from_reader(file).unwrap();
+    let raw_patch: HashMap<String, HashMap<String, u32>> =
+        serde_json::from_reader(patch_file).unwrap();
+
+    let patch: HashMap<String, HashMap<u8, u32>> = raw_patch
+        .into_iter()
+        .map(|(k, v)| {
+            let table = v
+                .into_iter()
+                .map(|(k, v)| (k.parse().unwrap(), v))
+                .collect::<HashMap<u8, u32>>();
+            (k, table)
+        })
+        .collect::<HashMap<String, HashMap<u8, u32>>>();
 
     let mut tables = tables
         .into_iter()
         .map(|(code_page, table)| {
+            // Apply patches
+            let table = if let Some(patch_for_codepage) = patch.get(&code_page) {
+                table
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, c)| c.or_else(|| patch_for_codepage.get(&(i as u8)).copied()))
+                    .collect()
+            } else {
+                table
+            };
+            // After here, `table` has been patched
             let complete = table.iter().all(Option::is_some);
             let code_page = code_page.parse().unwrap();
             let table = table
