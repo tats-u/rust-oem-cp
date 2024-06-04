@@ -431,6 +431,64 @@ mod tests {
         return Some(string_buf.chars().next().unwrap());
     }
 
+    /// Convert an Unicode character to codepoint via WindowsAPI
+    ///
+    /// # Arguments
+    ///
+    /// * `unicode` - Unicode character to convert to codepoint
+    /// * `codepage` - code page
+    /// * `strict` - whether to use WC_NO_BEST_FIT_CHARS or not.
+    #[cfg(windows)]
+    fn windows_to_codepage_char(unicode: char, codepage: u16, strict: bool) -> Option<Vec<u8>> {
+        use winapi::{shared::minwindef::DWORD, um::winnls::WC_COMPOSITECHECK};
+
+        let mut unicode_buf = [0u16; 2];
+        let unicode_buf_slice = unicode.encode_utf16(&mut unicode_buf);
+        unsafe {
+            use std::ptr::null_mut;
+            use winapi::shared::winerror::ERROR_NO_UNICODE_TRANSLATION;
+            use winapi::um::errhandlingapi::GetLastError;
+            use winapi::um::stringapiset::WideCharToMultiByte;
+            use winapi::um::winnls::WC_ERR_INVALID_CHARS;
+            use winapi::um::winnls::WC_NO_BEST_FIT_CHARS;
+
+            let strict_flag: DWORD = if strict { WC_NO_BEST_FIT_CHARS } else { 0 };
+
+            let bytes_len = WideCharToMultiByte(
+                codepage as u32,
+                strict_flag | WC_ERR_INVALID_CHARS | WC_COMPOSITECHECK,
+                unicode_buf_slice.as_ptr(),
+                unicode_buf_slice.len() as i32,
+                null_mut(),
+                0,
+                null_mut(),
+                null_mut(),
+            );
+            if bytes_len <= 0 {
+                let error_code = GetLastError();
+                if error_code == ERROR_NO_UNICODE_TRANSLATION {
+                    return None;
+                }
+                panic!("WideCharToMultiByte (size checking) failed for {unicode} (U+{:04X}) failed in cp{codepage} (error code: {error_code:?} / 0x{error_code:X})", unicode as u32);
+            }
+            let mut bytes_buf = vec![0u8; bytes_len as usize];
+            let written_bytes = WideCharToMultiByte(
+                codepage as u32,
+                strict_flag | WC_ERR_INVALID_CHARS,
+                unicode_buf_slice.as_ptr(),
+                unicode_buf_slice.len() as i32,
+                bytes_buf.as_mut_ptr() as *mut i8,
+                bytes_len,
+                null_mut(),
+                null_mut(),
+            );
+            if written_bytes != bytes_len {
+                panic!("WideCharToMultiByte (writing) failed for {unicode} (U+{:04X}) in cp{codepage} (size checking returned {bytes_len} / writing returned {written_bytes})", unicode as u32);
+            }
+            Some(bytes_buf)
+        }
+    }
+
     #[cfg(windows)]
     #[test]
     fn windows_to_unicode_char_test() {
@@ -566,6 +624,44 @@ mod tests {
                     ),
                 );
             }
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn compare_to_winapi_encoding_test() {
+        let windows_testing_codepages: Vec<u16> = vec![
+            437, 720, 737, 775, 850, 852, 855, 857, 858, 860, 861, 862, 863, 864, 865, 866, 869,
+            874,
+        ];
+
+        use itertools::Itertools;
+        for codepage in &windows_testing_codepages {
+            let table = ENCODING_TABLE_CP_MAP.get(codepage).unwrap();
+            assert!(
+                table.entries().all(|(unicode, table_result)| {
+                    let windows_result = windows_to_codepage_char(*unicode, *codepage, true);
+                    windows_result.is_some_and(|result| &result == &[*table_result])
+                }),
+                "Encoding result for cp{codepage} is incorrect:\n\n{}",
+                table
+                    .entries()
+                    .filter_map(|(unicode, table_result)| {
+                        let windows_result = windows_to_codepage_char(*unicode, *codepage, true);
+                        if windows_result
+                            .as_ref()
+                            .is_some_and(|result| result == &[*table_result])
+                        {
+                            None
+                        } else {
+                            Some(format!(
+                                "U+{:04X} => {:?} (Windows) != {:?} (library)",
+                                *unicode as u32, &windows_result, table_result
+                            ))
+                        }
+                    })
+                    .join("\n")
+            );
         }
     }
 }
