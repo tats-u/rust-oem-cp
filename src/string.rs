@@ -22,11 +22,11 @@ impl TableType {
     /// use oem_cp::code_table_type::TableType;
     /// use TableType::{Complete,Incomplete};
     ///
-    /// assert_eq!(Complete(&DECODING_TABLE_CP437).decode_string_checked(vec![0xFB, 0xAC, 0x3D, 0xAB]), Some("√¼=½".to_string()));
+    /// assert_eq!(Complete(&DECODING_TABLE_CP437).decode_string_checked(&[0xFB, 0xAC, 0x3D, 0xAB]), Some("√¼=½".to_string()));
     /// // means shrimp in Thai (U+E49 => 0xE9)
-    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
+    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_checked(&[0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
     /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows (strict mode)
-    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_checked(vec![0x30, 0xDB]), None);
+    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_checked(&[0x30, 0xDB]), None);
     /// ```
     pub fn decode_string_checked(&self, src: &[u8]) -> Option<String> {
         match self {
@@ -49,11 +49,11 @@ impl TableType {
     /// use oem_cp::code_table_type::TableType;
     /// use TableType::{Complete,Incomplete};
     ///
-    /// assert_eq!(Complete(&DECODING_TABLE_CP437).decode_string_lossy(vec![0xFB, 0xAC, 0x3D, 0xAB]), "√¼=½".to_string());
+    /// assert_eq!(Complete(&DECODING_TABLE_CP437).decode_string_lossy(&[0xFB, 0xAC, 0x3D, 0xAB]), "√¼=½".to_string());
     /// // means shrimp in Thai (U+E49 => 0xE9)
-    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_lossy(vec![0xA1, 0xD8, 0xE9, 0xA7]), "กุ้ง".to_string());
+    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_lossy(&[0xA1, 0xD8, 0xE9, 0xA7]), "กุ้ง".to_string());
     /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows (strict mode)
-    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_lossy(vec![0x30, 0xDB]), "0\u{FFFD}".to_string());
+    /// assert_eq!(Incomplete(&DECODING_TABLE_CP874).decode_string_lossy(&[0x30, 0xDB]), "0\u{FFFD}".to_string());
     /// ```
     pub fn decode_string_lossy(&self, src: &[u8]) -> String {
         match self {
@@ -76,7 +76,7 @@ impl TableType {
 /// use oem_cp::decode_string_complete_table;
 /// use oem_cp::code_table::DECODING_TABLE_CP437;
 ///
-/// assert_eq!(&decode_string_complete_table(vec![0xFB, 0xAC, 0x3D, 0xAB], &DECODING_TABLE_CP437), "√¼=½");
+/// assert_eq!(&decode_string_complete_table(&[0xFB, 0xAC, 0x3D, 0xAB], &DECODING_TABLE_CP437), "√¼=½");
 /// ```
 pub fn decode_string_complete_table(src: &[u8], decoding_table: &[char; 128]) -> String {
     src.iter()
@@ -106,9 +106,9 @@ pub fn decode_string_complete_table(src: &[u8], decoding_table: &[char; 128]) ->
 /// use oem_cp::code_table::DECODING_TABLE_CP874;
 ///
 /// // means shrimp in Thai (U+E49 => 0xE9)
-/// assert_eq!(decode_string_incomplete_table_checked(vec![0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), Some("กุ้ง".to_string()));
+/// assert_eq!(decode_string_incomplete_table_checked(&[0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), Some("กุ้ง".to_string()));
 /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows
-/// assert_eq!(decode_string_incomplete_table_checked(vec![0x30, 0xDB], &DECODING_TABLE_CP874), None);
+/// assert_eq!(decode_string_incomplete_table_checked(&[0x30, 0xDB], &DECODING_TABLE_CP874), None);
 /// ```
 pub fn decode_string_incomplete_table_checked(
     src: &[u8],
@@ -141,9 +141,9 @@ pub fn decode_string_incomplete_table_checked(
 /// use oem_cp::code_table::DECODING_TABLE_CP874;
 ///
 /// // means shrimp in Thai (U+E49 => 0xE9)
-/// assert_eq!(&decode_string_incomplete_table_lossy(vec![0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), "กุ้ง");
+/// assert_eq!(&decode_string_incomplete_table_lossy(&[0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), "กุ้ง");
 /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows
-/// assert_eq!(&decode_string_incomplete_table_lossy(vec![0x30, 0xDB], &DECODING_TABLE_CP874), "0\u{FFFD}");
+/// assert_eq!(&decode_string_incomplete_table_lossy(&[0x30, 0xDB], &DECODING_TABLE_CP874), "0\u{FFFD}");
 /// ```
 pub fn decode_string_incomplete_table_lossy(
     src: &[u8],
