@@ -23,7 +23,7 @@ pub mod code_table_type {
     /// It has 2 types: `Complete`, complete tables (it doesn't have undefined codepoints) / `Incomplete`, incomplete tables (does have ones)
     #[derive(Debug, Clone)]
     pub enum TableType {
-        /// complete table, which doen't have any undefined codepoints
+        /// complete table, which doesn't have any undefined codepoints
         Complete(&'static [char; 128]),
         /// incomplete table, which has some undefined codepoints
         Incomplete(&'static [Option<char>; 128]),
