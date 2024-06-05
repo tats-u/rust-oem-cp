@@ -61,6 +61,13 @@ impl TableType {
             Incomplete(table_ref) => decode_string_incomplete_table_lossy(src, table_ref),
         }
     }
+
+    pub fn decode_char_checked(&self, byte: u8) -> Option<char> {
+        match self {
+            Complete(table_ref) => Some(decode_char_complete_table(byte, table_ref)),
+            Incomplete(table_ref) => decode_char_incomplete_table_checked(byte, table_ref),
+        }
+    }
 }
 
 /// Decode SBCS (single byte character set) bytes (no undefined codepoints)
@@ -88,6 +95,29 @@ pub fn decode_string_complete_table(src: &[u8], decoding_table: &[char; 128]) ->
             }
         })
         .collect()
+}
+
+/// Decode single SBCS (single byte character set) byte (no undefined codepoints)
+///
+/// # Arguments
+///
+/// * `src` - single byte encoded in SBCS
+/// * `decoding_table` - table for decoding SBCS (**with** undefined codepoints)
+///
+/// # Examples
+///
+/// ```
+/// use oem_cp::decode_char_complete_table;
+/// use oem_cp::code_table::DECODING_TABLE_CP437;
+///
+/// assert_eq!(&decode_char_complete_table(0xFB, &DECODING_TABLE_CP437), '√');
+/// ```
+pub fn decode_char_complete_table(src: u8, decoding_table: &[char; 128]) -> char {
+    if src < 128 {
+        src as char
+    } else {
+        decoding_table[(src & 127) as usize]
+    }
 }
 
 /// Decode SBCS (single byte character set) bytes (with undefined codepoints)
@@ -160,6 +190,61 @@ pub fn decode_string_incomplete_table_lossy(
         .collect()
 }
 
+/// Decode single SBCS (single byte character set) byte (with undefined codepoints)
+///
+/// If some undefined codepoints are found, returns `None`.
+///
+/// # Arguments
+///
+/// * `src` - single byte encoded in SBCS
+/// * `decoding_table` - table for decoding SBCS (**with** undefined codepoints)
+///
+/// # Examples
+///
+/// ```
+/// use oem_cp::decode_char_incomplete_table_checked;
+/// use oem_cp::code_table::DECODING_TABLE_CP874;
+///
+/// assert_eq!(decode_char_incomplete_table_checked(0x85, &DECODING_TABLE_CP874), Some('…'));
+/// assert_eq!(decode_char_incomplete_table_checked(0xFC, &DECODING_TABLE_CP874), None);
+/// ```
+pub fn decode_char_incomplete_table_checked(
+    src: u8,
+    decoding_table: &[Option<char>; 128],
+) -> Option<char> {
+    if src < 128 {
+        Some(src as char)
+    } else {
+        decoding_table[(src & 127) as usize]
+    }
+}
+
+/// Decode single SBCS (single byte character set) byte (with undefined codepoints)
+///
+/// Undefined codepoints are replaced with `U+FFFD` (replacement character).
+///
+/// # Arguments
+///
+/// * `src` - single byte encoded in SBCS
+/// * `decoding_table` - table for decoding SBCS (**with** undefined codepoints)
+///
+/// # Examples
+///
+/// ```
+/// use oem_cp::decode_char_incomplete_table_lossy;
+/// use oem_cp::code_table::DECODING_TABLE_CP874;
+///
+/// assert_eq!(decode_char_incomplete_table_lossy(0x85, &DECODING_TABLE_CP874), '…');
+/// assert_eq!(decode_char_incomplete_table_lossy(0xFC, &DECODING_TABLE_CP874), '\u{FFFD}');
+/// ```
+pub fn decode_char_incomplete_table_lossy(src: u8, decoding_table: &[Option<char>; 128]) -> char {
+    if src < 128 {
+        src as char
+    } else {
+        decoding_table[(src & 127) as usize].unwrap_or('\u{FFFD}')
+    }
+}
+
 /// Encode Unicode string in SBCS (single byte character set)
 ///
 /// If some undefined codepoints are found, returns `None`.
@@ -226,6 +311,62 @@ pub fn encode_string_lossy(src: &str, encoding_table: &OEMCPHashMap<char, u8>) -
             }
         })
         .collect()
+}
+
+/// Encode Unicode char in SBCS (single byte character set)
+/// 
+/// If undefined codepoint is found, returns `None`.
+/// 
+/// # Arguments
+/// 
+/// * `src` - Unicode char
+/// * `encoding_table` - table for encoding in SBCS
+/// 
+/// # Examples
+/// 
+/// ```
+/// use oem_cp::encode_char_checked;
+/// use oem_cp::code_table::{ENCODING_TABLE_CP437, ENCODING_TABLE_CP737};
+/// assert_eq!(encode_char_checked('π', &ENCODING_TABLE_CP437), Some(0xE3));
+/// // Archimedes in Greek
+/// assert_eq!(encode_char_checked('Α', &ENCODING_TABLE_CP737), Some(0x80));
+/// // Japanese characters are not defined in CP437
+/// assert_eq!(encode_char_checked('日', &ENCODING_TABLE_CP437), None);
+/// ```
+pub fn encode_char_checked(src: char, encoding_table: &OEMCPHashMap<char, u8>) -> Option<u8> {
+    if (src as u32) < 128 {
+        Some(src as u8)
+    } else {
+        encoding_table.get(&src).copied()
+    }
+}
+
+/// Encode Unicode char in SBCS (single byte character set)
+/// 
+/// Undefined codepoints are replaced with `0x3F` (`?`).
+/// 
+/// # Arguments
+/// 
+/// * `src` - Unicode char
+/// * `encoding_table` - table for encoding in SBCS
+/// 
+/// # Examples
+/// 
+/// ```
+/// use oem_cp::encode_char_lossy;
+/// use oem_cp::code_table::{ENCODING_TABLE_CP437, ENCODING_TABLE_CP737};
+/// assert_eq!(encode_char_lossy('π', &ENCODING_TABLE_CP437), 0xE3);
+/// // Archimedes in Greek
+/// assert_eq!(encode_char_lossy('Α', &ENCODING_TABLE_CP737), 0x80);
+/// // Japanese characters are not defined in CP437 and replaced with `?` (0x3F)
+/// assert_eq!(encode_char_lossy('日', &ENCODING_TABLE_CP437), 0x3F);
+/// ```
+pub fn encode_char_lossy(src: char, encoding_table: &OEMCPHashMap<char, u8>) -> u8 {
+    if (src as u32) < 128 {
+        src as u8
+    } else {
+        encoding_table.get(&src).copied().unwrap_or(b'?')
+    }
 }
 
 #[cfg(test)]
