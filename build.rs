@@ -236,12 +236,12 @@ fn write_decoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> 
 /// ```
 /// use oem_cp::code_table::{{DECODING_TABLE_CP_MAP, DECODING_TABLE_CP437}};
 /// use oem_cp::code_table_type::TableType::*;
-/// assert_eq!(DECODING_TABLE_CP_MAP.get(&437).unwrap().decode_string_lossy(vec![0x31, 0xF6, 0xAB, 0x3D, 0x32]), "1÷½=2".to_string());
+/// assert_eq!(DECODING_TABLE_CP_MAP.get(&437).unwrap().decode_string_lossy(&[0x31, 0xF6, 0xAB, 0x3D, 0x32]), "1÷½=2".to_string());
 /// if let Some(cp874_table) = DECODING_TABLE_CP_MAP.get(&874) {{
 ///     // means shrimp in Thai (U+E49 => 0xE9)
-///     assert_eq!(cp874_table.decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
+///     assert_eq!(cp874_table.decode_string_checked(&[0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
 ///     // undefined mapping 0xDB for CP874 Windows dialect (strict mode with MB_ERR_INVALID_CHARS)
-///     assert_eq!(cp874_table.decode_string_checked(vec![0xDB]), None);
+///     assert_eq!(cp874_table.decode_string_checked(&[0xDB]), None);
 /// }} else {{
 ///     panic!("CP874 must be defined in DECODING_TABLE_CP_MAP");
 /// }}

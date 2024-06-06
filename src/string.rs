@@ -110,7 +110,7 @@ pub fn decode_string_complete_table(src: &[u8], decoding_table: &[char; 128]) ->
 /// use oem_cp::decode_char_complete_table;
 /// use oem_cp::code_table::DECODING_TABLE_CP437;
 ///
-/// assert_eq!(&decode_char_complete_table(0xFB, &DECODING_TABLE_CP437), '√');
+/// assert_eq!(decode_char_complete_table(0xFB, &DECODING_TABLE_CP437), '√');
 /// ```
 pub fn decode_char_complete_table(src: u8, decoding_table: &[char; 128]) -> char {
     if src < 128 {
@@ -314,16 +314,16 @@ pub fn encode_string_lossy(src: &str, encoding_table: &OEMCPHashMap<char, u8>) -
 }
 
 /// Encode Unicode char in SBCS (single byte character set)
-/// 
+///
 /// If undefined codepoint is found, returns `None`.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `src` - Unicode char
 /// * `encoding_table` - table for encoding in SBCS
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// use oem_cp::encode_char_checked;
 /// use oem_cp::code_table::{ENCODING_TABLE_CP437, ENCODING_TABLE_CP737};
@@ -342,16 +342,16 @@ pub fn encode_char_checked(src: char, encoding_table: &OEMCPHashMap<char, u8>) -
 }
 
 /// Encode Unicode char in SBCS (single byte character set)
-/// 
+///
 /// Undefined codepoints are replaced with `0x3F` (`?`).
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `src` - Unicode char
 /// * `encoding_table` - table for encoding in SBCS
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```
 /// use oem_cp::encode_char_lossy;
 /// use oem_cp::code_table::{ENCODING_TABLE_CP437, ENCODING_TABLE_CP737};
@@ -572,6 +572,62 @@ mod tests {
         return Some(string_buf.chars().next().unwrap());
     }
 
+    #[cfg(windows)]
+    fn get_formatted_error_message(error_code: u32) -> String {
+        use core::ptr::null_mut;
+
+        use winapi::um::winbase::{
+            FormatMessageW, FORMAT_MESSAGE_FROM_SYSTEM, FORMAT_MESSAGE_IGNORE_INSERTS,
+            FORMAT_MESSAGE_MAX_WIDTH_MASK,
+        };
+        use winapi::um::winnt::{LANG_ENGLISH, MAKELANGID, SUBLANG_ENGLISH_US};
+
+        let mut local_error_message_buf = [0u16; 1024];
+        let mut english_error_message_buf = [0u16; 1024];
+        let local_error_message_len = unsafe {
+            FormatMessageW(
+                FORMAT_MESSAGE_FROM_SYSTEM
+                    | FORMAT_MESSAGE_IGNORE_INSERTS
+                    | FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                null_mut(),
+                error_code,
+                0,
+                local_error_message_buf.as_mut_ptr(),
+                local_error_message_buf.len() as u32,
+                null_mut(),
+            )
+        };
+        let english_error_message_len = unsafe {
+            FormatMessageW(
+                FORMAT_MESSAGE_FROM_SYSTEM
+                    | FORMAT_MESSAGE_IGNORE_INSERTS
+                    | FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                null_mut(),
+                error_code,
+                MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US) as u32,
+                english_error_message_buf.as_mut_ptr(),
+                english_error_message_buf.len() as u32,
+                null_mut(),
+            )
+        };
+        assert!(local_error_message_len > 0);
+        assert!(english_error_message_len > 0);
+        let local_string =
+            String::from_utf16_lossy(&local_error_message_buf[..local_error_message_len as usize])
+                .trim_end()
+                .to_string();
+        let english_string = String::from_utf16_lossy(
+            &english_error_message_buf[..english_error_message_len as usize],
+        )
+        .trim_end()
+        .to_string();
+        if local_string == english_string {
+            format!("{local_string} [{error_code} (0x{error_code:X})]")
+        } else {
+            format!("{local_string} ({english_string}) [{error_code} (0x{error_code:X})]")
+        }
+    }
+
     /// Convert an Unicode character to codepoint via WindowsAPI
     ///
     /// # Arguments
@@ -581,41 +637,42 @@ mod tests {
     /// * `strict` - whether to use WC_NO_BEST_FIT_CHARS or not.
     #[cfg(windows)]
     fn windows_to_codepage_char(unicode: char, codepage: u16, strict: bool) -> Option<Vec<u8>> {
-        use winapi::{shared::minwindef::DWORD, um::winnls::WC_COMPOSITECHECK};
+        use alloc::borrow::Cow;
+        use winapi::shared::minwindef::DWORD;
 
         let mut unicode_buf = [0u16; 2];
         let unicode_buf_slice = unicode.encode_utf16(&mut unicode_buf);
         unsafe {
             use std::ptr::null_mut;
-            use winapi::shared::winerror::ERROR_NO_UNICODE_TRANSLATION;
             use winapi::um::errhandlingapi::GetLastError;
             use winapi::um::stringapiset::WideCharToMultiByte;
-            use winapi::um::winnls::WC_ERR_INVALID_CHARS;
             use winapi::um::winnls::WC_NO_BEST_FIT_CHARS;
 
             let strict_flag: DWORD = if strict { WC_NO_BEST_FIT_CHARS } else { 0 };
 
+            let mut has_invalid_chars = 0i32;
             let bytes_len = WideCharToMultiByte(
                 codepage as u32,
-                strict_flag | WC_ERR_INVALID_CHARS | WC_COMPOSITECHECK,
+                strict_flag, // We can't use WC_ERR_INVALID_CHARS here because it's dedicated to UTF-8 and GB18030
                 unicode_buf_slice.as_ptr(),
                 unicode_buf_slice.len() as i32,
                 null_mut(),
                 0,
                 null_mut(),
-                null_mut(),
+                &mut has_invalid_chars,
             );
+            if has_invalid_chars != 0 {
+                return None;
+            }
             if bytes_len <= 0 {
                 let error_code = GetLastError();
-                if error_code == ERROR_NO_UNICODE_TRANSLATION {
-                    return None;
-                }
-                panic!("WideCharToMultiByte (size checking) failed for {unicode} (U+{:04X}) failed in cp{codepage} (error code: {error_code:?} / 0x{error_code:X})", unicode as u32);
+                let error_message = get_formatted_error_message(error_code);
+                panic!("WideCharToMultiByte (size checking) failed for {unicode} (U+{:04X}) in cp{codepage} (error: {error_message})", unicode as u32);
             }
             let mut bytes_buf = vec![0u8; bytes_len as usize];
             let written_bytes = WideCharToMultiByte(
                 codepage as u32,
-                strict_flag | WC_ERR_INVALID_CHARS,
+                strict_flag,
                 unicode_buf_slice.as_ptr(),
                 unicode_buf_slice.len() as i32,
                 bytes_buf.as_mut_ptr() as *mut i8,
@@ -624,7 +681,12 @@ mod tests {
                 null_mut(),
             );
             if written_bytes != bytes_len {
-                panic!("WideCharToMultiByte (writing) failed for {unicode} (U+{:04X}) in cp{codepage} (size checking returned {bytes_len} / writing returned {written_bytes})", unicode as u32);
+                let error_message: Cow<str> = if written_bytes == 0 {
+                    Cow::from(format!(" (error: {})", get_formatted_error_message(GetLastError())))
+                } else {
+                    Cow::from("")
+                };
+                panic!("WideCharToMultiByte (writing) failed for {unicode} (U+{:04X}) in cp{codepage} (size checking returned {bytes_len} / writing returned {written_bytes}){error_message}", unicode as u32);
             }
             Some(bytes_buf)
         }

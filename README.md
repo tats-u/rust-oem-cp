@@ -68,18 +68,18 @@ assert_eq!(encoding_string_lossy("½+¼=¾", &*ENCODING_TABLE_CP437), vec![0xAB,
 use oem_cp::{decode_string_complete_table, decode_string_incomplete_table_checked, decode_string_incomplete_table_lossy};
 use oem_cp::code_table::{DECODING_TABLE_CP437, DECODING_TABLE_CP874};
 
-assert_eq!(&decode_string_complete_table(vec![0xFB, 0xAC, 0x3D, 0xAB], &DECODING_TABLE_CP437), "√¼=½");
+assert_eq!(&decode_string_complete_table(&[0xFB, 0xAC, 0x3D, 0xAB], &DECODING_TABLE_CP437), "√¼=½");
 
 // For encoding that has some undefined code points, you must use decode_string_incomplete_table_{checked,lossy} instead of decode_string_complete_table
 
 // means shrimp in Thai (U+E49 => 0xE9)
-assert_eq!(decode_string_incomplete_table_checked(vec![0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), Some("กุ้ง".to_string()));
+assert_eq!(decode_string_incomplete_table_checked(&[0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), Some("กุ้ง".to_string()));
 // 0xDB-0xDE,0xFC-0xFF is undefined in CP874 in Windows
-assert_eq!(decode_string_incomplete_table_checked(vec![0x30, 0xDB], &DECODING_TABLE_CP874), None);
+assert_eq!(decode_string_incomplete_table_checked(&[0x30, 0xDB], &DECODING_TABLE_CP874), None);
 // You can use decode_string_incomplete_table_lossy instead
-assert_eq!(&decode_string_incomplete_table_lossy(vec![0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), "กุ้ง");
+assert_eq!(&decode_string_incomplete_table_lossy(&[0xA1, 0xD8, 0xE9, 0xA7], &DECODING_TABLE_CP874), "กุ้ง");
 // Undefined code points are replaced with U+FFFD (replacement character)
-assert_eq!(&decode_string_incomplete_table_lossy(vec![0x30, 0xDB], &DECODING_TABLE_CP874), "0\u{FFFD}");
+assert_eq!(&decode_string_incomplete_table_lossy(&[0x30, 0xDB], &DECODING_TABLE_CP874), "0\u{FFFD}");
 ```
 
 ### Select appropriate codepage from integer
@@ -89,20 +89,20 @@ use oem_cp::code_table::{ENCODING_TABLE_CP_MAP, DECODING_TABLE_CP_MAP};
 use oem_cp::{encoding_string_checked, encoding_string_lossy};
 
 if let Some(cp874_table) = (*DECODING_TABLE_CP_MAP).get(&874) {
-    assert_eq!(cp874_table.decode_string_checked(vec![0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
+    assert_eq!(cp874_table.decode_string_checked(&[0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
     // undefined mapping 0xDB for CP874
-    assert_eq!(cp874_table.decode_string_checked(vec![0xDB]), None);
-    assert_eq!(&cp874_table.decode_string_lossy(vec![0xDB]), "\u{FFFD}");
+    assert_eq!(cp874_table.decode_string_checked(&[0xDB]), None);
+    assert_eq!(&cp874_table.decode_string_lossy(&[0xDB]), "\u{FFFD}");
 } else {
     panic!("Why the hell CP874 isn't registered?");
 }
 
 if let Some(cp437_table) = (*ENCODING_TABLE_CP_MAP).get(&437) {
-    assert_eq!(encode_string_checked("π≈22/7", cp437_table), Some(vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
+    assert_eq!(encode_string_checked("π≈22/7", cp437_table), Some(&[0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
     // ¾ is undefined in CP437
     assert_eq!(encoding_string_checked("½+¼=¾", cp437_table), None);
     // It's replaced with ? (0x3F)
-    assert_eq!(encoding_string_lossy("½+¼=¾", cp437_table), vec![0xAB, 0x2B, 0xAC, 0x3D, 0x3F]);
+    assert_eq!(encoding_string_lossy("½+¼=¾", cp437_table), &[0xAB, 0x2B, 0xAC, 0x3D, 0x3F]);
 } else {
     panic!("Why the hell CP437 isn't registered?");
 }
