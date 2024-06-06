@@ -682,7 +682,10 @@ mod tests {
             );
             if written_bytes != bytes_len {
                 let error_message: Cow<str> = if written_bytes == 0 {
-                    Cow::from(format!(" (error: {})", get_formatted_error_message(GetLastError())))
+                    Cow::from(format!(
+                        " (error: {})",
+                        get_formatted_error_message(GetLastError())
+                    ))
                 } else {
                     Cow::from("")
                 };
