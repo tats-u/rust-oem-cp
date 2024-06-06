@@ -1,10 +1,138 @@
 use alloc::string::String;
 use alloc::vec::Vec;
 
+use crate::{CompleteCp, IncompleteCp, TryFromU8Error};
+
 use super::code_table_type::TableType;
 use super::OEMCPHashMap;
 
 use TableType::*;
+
+pub trait StrExt {
+    /// ```
+    /// use oem_cp::{Cp437, Cp737, StrExt};
+    ///
+    /// assert_eq!("π≈22/7".to_cp::<Cp437>().unwrap(), vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]);
+    /// // Archimedes in Greek
+    /// assert_eq!("Αρχιμήδης".to_cp::<Cp737>().unwrap(), vec![0x80, 0xA8, 0xAE, 0xA0, 0xA3, 0xE3, 0x9B, 0x9E, 0xAA]);
+    /// // Japanese characters are not defined in CP437
+    /// assert!("日本語ja_jp".to_cp::<Cp437>().is_err());
+    /// ```
+    fn to_cp<T: IncompleteCp>(&self) -> Result<Vec<T>, <T as TryFrom<char>>::Error>
+    where
+        u8: From<T>,
+        char: From<T>;
+
+    /// ```
+    /// use oem_cp::{Cp437, Cp737, StrExt};
+    ///
+    /// assert_eq!("π≈22/7".to_cp_lossy::<Cp437>(), vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]);
+    /// // Archimedes in Greek
+    /// assert_eq!("Αρχιμήδης".to_cp_lossy::<Cp737>(), vec![0x80, 0xA8, 0xAE, 0xA0, 0xA3, 0xE3, 0x9B, 0x9E, 0xAA]);
+    /// // Japanese characters are not defined in CP437 and replaced with `?` (0x3F)
+    /// // "日本語ja_jp" => "???ja_jp"
+    /// assert_eq!("日本語ja_jp".to_cp_lossy::<Cp437>(), vec![0x3F, 0x3F, 0x3F, 0x6A, 0x61, 0x5F, 0x6A, 0x70]);
+    /// ```
+    fn to_cp_lossy<T: IncompleteCp>(&self) -> Vec<T>
+    where
+        u8: From<T>,
+        char: From<T>;
+}
+
+impl StrExt for str {
+    fn to_cp<T: IncompleteCp>(&self) -> Result<Vec<T>, <T as TryFrom<char>>::Error>
+    where
+        u8: From<T>,
+        char: From<T>,
+    {
+        self.chars().map(T::try_from).collect()
+    }
+
+    fn to_cp_lossy<T: IncompleteCp>(&self) -> Vec<T>
+    where
+        u8: From<T>,
+        char: From<T>,
+    {
+        self.chars().map(T::from_char_lossy).collect()
+    }
+}
+
+pub trait StringExt: Sized {
+    /// ```
+    /// use oem_cp::{Cp874, StringExt};
+    ///
+    /// // means shrimp in Thai (U+E49 => 0xE9)
+    /// assert_eq!(String::try_from_cp::<Cp874>(&[0xA1, 0xD8, 0xE9, 0xA7]).unwrap(), "กุ้ง");
+    /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows
+    /// assert!(String::try_from_cp::<Cp874>(&[0x30, 0xDB]).is_err());
+    /// ```
+    fn try_from_cp<T: IncompleteCp>(v: &[u8]) -> Result<Self, TryFromU8Error>
+    where
+        u8: From<T>,
+        char: From<T>,
+        TryFromU8Error: From<<T as TryFrom<u8>>::Error>;
+
+    /// ```
+    /// use oem_cp::{Cp874, StringExt};
+    ///
+    /// // means shrimp in Thai (U+E49 => 0xE9)
+    /// assert_eq!(String::from_cp_lossy::<Cp874>(&[0xA1, 0xD8, 0xE9, 0xA7]), "กุ้ง");
+    /// // 0xDB-0xDE,0xFC-0xFF is invalid in CP874 in Windows
+    /// assert_eq!(String::from_cp_lossy::<Cp874>(&[0x30, 0xDB]), "0\u{FFFD}");
+    /// ```
+    fn from_cp_lossy<T: IncompleteCp>(v: &[u8]) -> Self
+    where
+        u8: From<T>,
+        char: From<T>;
+
+    /// ```
+    /// use oem_cp::{Cp437, StringExt};
+    /// 
+    /// assert_eq!(String::from_cp::<Cp437>(&[0xFB, 0xAC, 0x3D, 0xAB]), "√¼=½");
+    /// ```
+    fn from_cp<T: CompleteCp>(v: &[u8]) -> Self
+    where
+        u8: From<T>,
+        char: From<T>;
+}
+
+impl StringExt for String {
+    fn from_cp_lossy<T: IncompleteCp>(v: &[u8]) -> Self
+    where
+        u8: From<T>,
+        char: From<T>,
+    {
+        const REPLACEMENT: char = '\u{FFFD}';
+        v.iter()
+            .copied()
+            .map(|cp| T::try_from(cp).map(char::from).unwrap_or(REPLACEMENT))
+            .collect()
+    }
+
+    fn from_cp<T: CompleteCp>(v: &[u8]) -> Self
+    where
+        u8: From<T>,
+        char: From<T>,
+    {
+        v.iter().copied().map(T::from).map(char::from).collect()
+    }
+
+    fn try_from_cp<T: IncompleteCp>(v: &[u8]) -> Result<Self, TryFromU8Error>
+    where
+        u8: From<T>,
+        char: From<T>,
+        TryFromU8Error: From<<T as TryFrom<u8>>::Error>,
+    {
+        v.iter()
+            .copied()
+            .map(|cp| {
+                T::try_from(cp)
+                    .map(char::from)
+                    .map_err(TryFromU8Error::from)
+            })
+            .collect()
+    }
+}
 
 impl TableType {
     /// Wrapper function for decoding bytes encoded in SBCSs
