@@ -50,16 +50,16 @@ oem_cp = "2"
 #### Encoding Unicode string to SBCS bytes
 
 ```rust
-use oem_cp::{encoding_string_checked, encoding_string_lossy};
+use oem_cp::{encode_string_checked, encode_string_lossy};
 use oem_cp::code_table::{ENCODING_TABLE_CP437, ENCODING_TABLE_CP737};
 
 assert_eq!(encode_string_checked("π≈22/7", &*ENCODING_TABLE_CP437), Some(vec![0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
 // Archimedes in Greek
 assert_eq!(encode_string_checked("Αρχιμήδης", &*ENCODING_TABLE_CP737), Some(vec![0x80, 0xA8, 0xAE, 0xA0, 0xA3, 0xE3, 0x9B, 0x9E, 0xAA]));
 // ¾ (U+00BE) is not included in CP437
-assert_eq!(encoding_string_checked("½+¼=¾", &*ENCODING_TABLE_CP437), None);
+assert_eq!(encode_string_checked("½+¼=¾", &*ENCODING_TABLE_CP437), None);
 // Unknown characters can be replaced with ? (0x3F)
-assert_eq!(encoding_string_lossy("½+¼=¾", &*ENCODING_TABLE_CP437), vec![0xAB, 0x2B, 0xAC, 0x3D, 0x3F]);
+assert_eq!(encode_string_lossy("½+¼=¾", &*ENCODING_TABLE_CP437), vec![0xAB, 0x2B, 0xAC, 0x3D, 0x3F]);
 ```
 
 #### Decoding SBCS bytes to Unicode string
@@ -86,7 +86,7 @@ assert_eq!(&decode_string_incomplete_table_lossy(&[0x30, 0xDB], &DECODING_TABLE_
 
 ```rust
 use oem_cp::code_table::{ENCODING_TABLE_CP_MAP, DECODING_TABLE_CP_MAP};
-use oem_cp::{encoding_string_checked, encoding_string_lossy};
+use oem_cp::{encode_string_checked, encode_string_lossy};
 
 if let Some(cp874_table) = (*DECODING_TABLE_CP_MAP).get(&874) {
     assert_eq!(cp874_table.decode_string_checked(&[0xA1, 0xD8, 0xE9, 0xA7]), Some("กุ้ง".to_string()));
@@ -100,9 +100,9 @@ if let Some(cp874_table) = (*DECODING_TABLE_CP_MAP).get(&874) {
 if let Some(cp437_table) = (*ENCODING_TABLE_CP_MAP).get(&437) {
     assert_eq!(encode_string_checked("π≈22/7", cp437_table), Some(&[0xE3, 0xF7, 0x32, 0x32, 0x2F, 0x37]));
     // ¾ is undefined in CP437
-    assert_eq!(encoding_string_checked("½+¼=¾", cp437_table), None);
+    assert_eq!(encode_string_checked("½+¼=¾", cp437_table), None);
     // It's replaced with ? (0x3F)
-    assert_eq!(encoding_string_lossy("½+¼=¾", cp437_table), &[0xAB, 0x2B, 0xAC, 0x3D, 0x3F]);
+    assert_eq!(encode_string_lossy("½+¼=¾", cp437_table), &[0xAB, 0x2B, 0xAC, 0x3D, 0x3F]);
 } else {
     panic!("Why the hell CP437 isn't registered?");
 }
