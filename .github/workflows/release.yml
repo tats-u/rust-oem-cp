@@ -18,7 +18,7 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: stable
@@ -38,7 +38,7 @@ jobs:
     needs:
       - test-again
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Create a Release
       id: create_release
       uses: actions/create-release@v1
@@ -54,7 +54,7 @@ jobs:
       run: |
         echo VERSION=${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
         echo DEB_NAME=$(basename $(ls ${{ runner.temp }}/deb-package/*.deb | tail -n 1)) >> $GITHUB_OUTPUT
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
