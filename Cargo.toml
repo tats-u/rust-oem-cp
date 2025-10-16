@@ -10,6 +10,10 @@ description ="Rust library that handles OEM code pages (e.g. CP{437,737,850}) fo
 readme = "README.md"
 repository = "https://github.com/tats-u/rust-oem-cp/"
 
+include = [
+  "src",
+  "LICENSE",
+]
 
 [features]
 default = ["alloc"]
