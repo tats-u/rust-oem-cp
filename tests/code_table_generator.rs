@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
+use std::fmt::Write;
 use std::fs::File;
-use std::io::{BufReader, BufWriter, Write};
-use std::path::PathBuf;
-use std::{env, io};
+use std::io::BufReader;
+use std::path::{Path, PathBuf};
+use std::{env, fmt, io};
 
 use serde::Deserialize;
 
@@ -22,16 +23,11 @@ struct CodeTables {
     tables: Vec<(u16, Table)>,
 }
 
-fn main() -> io::Result<()> {
-    generate_tables()?;
-
-    Ok(())
-}
-
-/// Generates `$OUT_DIR/code_table.rs` from `./assets/code_tables.json`
-fn generate_tables() -> io::Result<()> {
+/// Generates `src/code_table.generated.rs` from `./assets/code_tables.json`
+#[test]
+fn generate_tables() -> Result<(), Box<dyn std::error::Error>> {
     let code_tables = parse_code_tables()?;
-    let mut output = open_output()?;
+    let mut output = String::new();
 
     write_header(&mut output, code_tables.created)?;
 
@@ -48,17 +44,13 @@ fn generate_tables() -> io::Result<()> {
 
     write_footer(&mut output)?;
 
-    Ok(())
-}
+    // NOTE: normalizes line endings to `\n` regardless of platform
+    output = output.lines().collect::<Vec<_>>().join("\n");
+    output.push('\n');
 
-fn open_output() -> io::Result<BufWriter<File>> {
-    let path = {
-        let mut path = PathBuf::from(env::var("OUT_DIR").unwrap());
-        path.push("code_table.rs");
-        path
-    };
-    let output = BufWriter::new(File::create(path)?);
-    Ok(output)
+    snapshot_testing::assert_eq_or_update(output, Path::new("src").join("code_table.generated.rs"));
+
+    Ok(())
 }
 
 /// Opens `assets/code_tables.json`, and organizes and returns its contents
@@ -136,7 +128,7 @@ fn parse_code_tables() -> io::Result<CodeTables> {
     Ok(CodeTables { created, tables })
 }
 
-fn write_header(mut dst: impl Write, created: String) -> io::Result<()> {
+fn write_header(mut dst: impl Write, created: String) -> fmt::Result {
     writeln!(
         &mut dst,
         "/// Code table
@@ -150,7 +142,7 @@ use TableType::*;
     )
 }
 
-fn write_decoding(mut dst: impl Write, code_page: u16, table: &Table) -> io::Result<()> {
+fn write_decoding(mut dst: impl Write, code_page: u16, table: &Table) -> fmt::Result {
     writeln!(&mut dst, "/// Decoding table (CP{code_page} to Unicode)")?;
     match table {
         Table::Complete(table) => {
@@ -172,7 +164,7 @@ fn write_decoding(mut dst: impl Write, code_page: u16, table: &Table) -> io::Res
     Ok(())
 }
 
-fn write_encoding(mut dst: impl Write, code_page: u16, table: &Table) -> io::Result<()> {
+fn write_encoding(mut dst: impl Write, code_page: u16, table: &Table) -> fmt::Result {
     let mut map = phf_codegen::Map::new();
 
     match table {
@@ -208,7 +200,7 @@ pub static ENCODING_TABLE_CP{code_page}: OEMCPHashMap<char, u8> = {map};",
     Ok(())
 }
 
-fn write_decoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> io::Result<()> {
+fn write_decoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> fmt::Result {
     let mut map = phf_codegen::Map::new();
 
     for (code_page, table) in tables {
@@ -253,7 +245,7 @@ pub static DECODING_TABLE_CP_MAP: OEMCPHashMap<u16, TableType> = {map};"#,
     Ok(())
 }
 
-fn write_encoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> io::Result<()> {
+fn write_encoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> fmt::Result {
     let mut map = phf_codegen::Map::new();
 
     for (code_page, _table) in tables {
@@ -288,6 +280,6 @@ pub static ENCODING_TABLE_CP_MAP: OEMCPHashMap<u16, &'static OEMCPHashMap<char, 
     Ok(())
 }
 
-fn write_footer(mut dst: impl Write) -> io::Result<()> {
+fn write_footer(mut dst: impl Write) -> fmt::Result {
     writeln!(&mut dst, "}}")
 }
