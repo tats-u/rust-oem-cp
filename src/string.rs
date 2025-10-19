@@ -87,7 +87,7 @@ pub trait StringExt: Sized {
 
     /// ```
     /// use oem_cp::{Cp437, StringExt};
-    /// 
+    ///
     /// assert_eq!(String::from_cp::<Cp437>(&[0xFB, 0xAC, 0x3D, 0xAB]), "√¼=½");
     /// ```
     fn from_cp<T: CompleteCp>(v: &[u8]) -> Self
