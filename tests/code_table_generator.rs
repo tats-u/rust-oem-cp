@@ -146,18 +146,35 @@ use TableType::*;
 }
 
 fn write_decoding(dst: &mut impl Write, code_page: u16, table: &Table) -> fmt::Result {
+    struct ChunkedSlice<'a, T>(&'a [T], usize);
+    impl<T: fmt::Debug> fmt::Debug for ChunkedSlice<'_, T> {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            writeln!(f, "[")?;
+            for chunk in self.0.chunks(self.1) {
+                write!(f, "   ")?;
+                for value in chunk {
+                    write!(f, " {value:?},")?;
+                }
+                writeln!(f)?;
+            }
+            write!(f, "]")
+        }
+    }
+
     writeln!(dst, "/// Decoding table (CP{code_page} to Unicode)")?;
     match table {
         Table::Complete(table) => {
             writeln!(
                 dst,
-                "pub static DECODING_TABLE_CP{code_page}: [char; 128] = {table:?};"
+                "pub static DECODING_TABLE_CP{code_page}: [char; 128] = {:?};",
+                ChunkedSlice(table, 16)
             )?;
         }
         Table::Incomplete(table) => {
             writeln!(
                 dst,
-                "pub static DECODING_TABLE_CP{code_page}: [Option<char>; 128] = {table:?};"
+                "pub static DECODING_TABLE_CP{code_page}: [Option<char>; 128] = {:?};",
+                ChunkedSlice(table, 8)
             )?;
         }
     }
