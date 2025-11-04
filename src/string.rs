@@ -545,15 +545,6 @@ mod tests {
             737, 775, 850, 852, 855, 857, 862, 866, 874,
         ]
     });
-    #[allow(clippy::type_complexity)]
-    static WINDOWS_CONVERSION_VALID_TESTCASES: Lazy<Vec<(u16, Vec<(u8, char)>)>> =
-        Lazy::new(|| {
-            vec![
-                (437, vec![(0x82, 'é'), (0x9D, '¥'), (0xFB, '√')]),
-                (850, vec![(0xD0, 'ð'), (0xF3, '¾'), (0x9E, '×')]),
-                (874, vec![(0x80, '€'), (0xDF, '฿'), (0xA1, 'ก')]),
-            ]
-        });
     #[test]
     fn cp437_encoding_test() {
         for (utf8_ref, cp437_ref) in &*CP437_VALID_PAIRS {
@@ -826,6 +817,15 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn windows_to_unicode_char_test() {
+        #[allow(clippy::type_complexity)]
+        static WINDOWS_CONVERSION_VALID_TESTCASES: Lazy<Vec<(u16, Vec<(u8, char)>)>> =
+            Lazy::new(|| {
+                vec![
+                    (437, vec![(0x82, 'é'), (0x9D, '¥'), (0xFB, '√')]),
+                    (850, vec![(0xD0, 'ð'), (0xF3, '¾'), (0x9E, '×')]),
+                    (874, vec![(0x80, '€'), (0xDF, '฿'), (0xA1, 'ก')]),
+                ]
+            });
         static WINDOWS_CONVERSION_INVALID_TESTCASES: Lazy<Vec<(u16, Vec<u8>)>> = Lazy::new(|| {
             vec![
                 (857, vec![0xE7, 0xF2]),
