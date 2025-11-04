@@ -3,7 +3,8 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-include!("code_table.generated.rs");
+#[path = "code_table.generated.rs"]
+pub mod code_table;
 
 #[cfg(feature = "alloc")]
 mod string;

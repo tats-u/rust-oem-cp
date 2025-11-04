@@ -1,6 +1,7 @@
-/// Code table
-/// Generated at 2020-09-22T01:23:23+00:00
-pub mod code_table {
+//! Code table
+//! Generated at 2020-09-22T01:23:23+00:00
+
+#![cfg_attr(rustfmt, rustfmt_skip)]
 
 use super::code_table_type::TableType;
 use super::OEMCPHashMap;
@@ -3042,4 +3043,3 @@ pub static ENCODING_TABLE_CP_MAP: OEMCPHashMap<u16, &'static OEMCPHashMap<char, 
         (852, &ENCODING_TABLE_CP852),
     ],
 };
-}

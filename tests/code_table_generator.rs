@@ -42,8 +42,6 @@ fn generate_tables() -> Result<(), Box<dyn std::error::Error>> {
     write_decoding_table_cp_map(&mut output, &code_tables.tables)?;
     write_encoding_table_cp_map(&mut output, &code_tables.tables)?;
 
-    write_footer(&mut output)?;
-
     // NOTE: normalizes line endings to `\n` regardless of platform
     output = output.lines().collect::<Vec<_>>().join("\n");
     output.push('\n');
@@ -131,9 +129,10 @@ fn parse_code_tables() -> io::Result<CodeTables> {
 fn write_header(mut dst: impl Write, created: String) -> fmt::Result {
     writeln!(
         &mut dst,
-        "/// Code table
-/// Generated at {created}
-pub mod code_table {{
+        "//! Code table
+//! Generated at {created}
+
+#![cfg_attr(rustfmt, rustfmt_skip)]
 
 use super::code_table_type::TableType;
 use super::OEMCPHashMap;
@@ -278,8 +277,4 @@ pub static ENCODING_TABLE_CP_MAP: OEMCPHashMap<u16, &'static OEMCPHashMap<char, 
     )?;
 
     Ok(())
-}
-
-fn write_footer(mut dst: impl Write) -> fmt::Result {
-    writeln!(&mut dst, "}}")
 }
