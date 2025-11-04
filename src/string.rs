@@ -501,134 +501,125 @@ pub fn encode_char_lossy(src: char, encoding_table: &OEMCPHashMap<char, u8>) -> 
 mod tests {
     use super::*;
     use crate::code_table::*;
-    use once_cell::sync::Lazy;
 
-    static CP437_VALID_PAIRS: Lazy<Vec<(&'static str, Vec<u8>)>> = Lazy::new(|| {
-        vec![
-            ("√α²±ß²", vec![0xFB, 0xE0, 0xFD, 0xF1, 0xE1, 0xFD]),
-            ("és", vec![0x82, 0x73]),
-            ("più", vec![0x70, 0x69, 0x97]),
-            ("½÷¼=2", vec![0xAB, 0xF6, 0xAC, 0x3D, 0x32]),
-        ]
-    });
-    static CP874_VALID_PAIRS: Lazy<Vec<(&'static str, Vec<u8>)>> = Lazy::new(|| {
-        vec![
-            // cspell: disable
-            (
-                "ราชอาณาจักรไท",
-                vec![
-                    0xC3, 0xD2, 0xAA, 0xCD, 0xD2, 0xB3, 0xD2, 0xA8, 0xD1, 0xA1, 0xC3, 0xE4, 0xB7,
-                ],
-            ),
-            (
-                "ต้มยำกุ้ง",
-                vec![0xB5, 0xE9, 0xC1, 0xC2, 0xD3, 0xA1, 0xD8, 0xE9, 0xA7],
-            ),
-            // cspell: enable
-        ]
-    });
-    static CP857_VALID_PAIRS: Lazy<Vec<(&'static str, Vec<u8>)>> = Lazy::new(|| {
-        vec![
-            // cspell: disable
-            ("½÷¼=2", vec![0xAB, 0xF6, 0xAC, 0x3D, 0x32]),
-            ("¼×3=¾", vec![0xAC, 0xE8, 0x33, 0x3D, 0xF3]),
-            ("İran", vec![0x98, 0x72, 0x61, 0x6E]),
-            ("ırmak", vec![0x8D, 0x72, 0x6D, 0x61, 0x6B]),
-            ("iş", vec![0x69, 0x9F]),
-            // cspell: enable
-        ]
-    });
+    static CP437_VALID_PAIRS: &[(&str, &[u8])] = &[
+        ("√α²±ß²", &[0xFB, 0xE0, 0xFD, 0xF1, 0xE1, 0xFD]),
+        ("és", &[0x82, 0x73]),
+        ("più", &[0x70, 0x69, 0x97]),
+        ("½÷¼=2", &[0xAB, 0xF6, 0xAC, 0x3D, 0x32]),
+    ];
+    static CP874_VALID_PAIRS: &[(&str, &[u8])] = &[
+        // cspell: disable
+        (
+            "ราชอาณาจักรไท",
+            &[
+                0xC3, 0xD2, 0xAA, 0xCD, 0xD2, 0xB3, 0xD2, 0xA8, 0xD1, 0xA1, 0xC3, 0xE4, 0xB7,
+            ],
+        ),
+        (
+            "ต้มยำกุ้ง",
+            &[0xB5, 0xE9, 0xC1, 0xC2, 0xD3, 0xA1, 0xD8, 0xE9, 0xA7],
+        ),
+        // cspell: enable
+    ];
+    static CP857_VALID_PAIRS: &[(&str, &[u8])] = &[
+        // cspell: disable
+        ("½÷¼=2", &[0xAB, 0xF6, 0xAC, 0x3D, 0x32]),
+        ("¼×3=¾", &[0xAC, 0xE8, 0x33, 0x3D, 0xF3]),
+        ("İran", &[0x98, 0x72, 0x61, 0x6E]),
+        ("ırmak", &[0x8D, 0x72, 0x6D, 0x61, 0x6B]),
+        ("iş", &[0x69, 0x9F]),
+        // cspell: enable
+    ];
     /// OEM SBCSs used in some languages (locales)
-    static WINDOWS_USED_CODEPAGES: Lazy<Vec<u16>> = Lazy::new(|| {
-        vec![
-            437, // 720, // TODO: implement for locales using Arabic alphabets
-            737, 775, 850, 852, 855, 857, 862, 866, 874,
-        ]
-    });
+    static WINDOWS_USED_CODEPAGES: &[u16] = &[
+        437, // 720, // TODO: implement for locales using Arabic alphabets
+        737, 775, 850, 852, 855, 857, 862, 866, 874,
+    ];
     #[test]
     fn cp437_encoding_test() {
-        for (utf8_ref, cp437_ref) in &*CP437_VALID_PAIRS {
+        for &(utf8_ref, cp437_ref) in CP437_VALID_PAIRS {
             assert_eq!(
-                &encode_string_lossy(*utf8_ref, &ENCODING_TABLE_CP437),
+                &encode_string_lossy(utf8_ref, &ENCODING_TABLE_CP437),
                 cp437_ref
             );
             assert_eq!(
-                &(encode_string_checked(*utf8_ref, &ENCODING_TABLE_CP437).unwrap()),
+                &(encode_string_checked(utf8_ref, &ENCODING_TABLE_CP437).unwrap()),
                 cp437_ref
             );
         }
     }
     #[test]
     fn cp437_decoding_test() {
-        for (utf8_ref, cp437_ref) in &*CP437_VALID_PAIRS {
+        for &(utf8_ref, cp437_ref) in CP437_VALID_PAIRS {
             assert_eq!(
                 &decode_string_complete_table(cp437_ref, &DECODING_TABLE_CP437),
-                *utf8_ref
+                utf8_ref
             );
         }
     }
     #[test]
     fn cp874_encoding_test() {
-        for (utf8_ref, cp874_ref) in &*CP874_VALID_PAIRS {
+        for &(utf8_ref, cp874_ref) in CP874_VALID_PAIRS {
             assert_eq!(
-                &encode_string_lossy(*utf8_ref, &ENCODING_TABLE_CP874),
+                &encode_string_lossy(utf8_ref, &ENCODING_TABLE_CP874),
                 cp874_ref
             );
             assert_eq!(
-                &(encode_string_checked(*utf8_ref, &ENCODING_TABLE_CP874).unwrap()),
+                &(encode_string_checked(utf8_ref, &ENCODING_TABLE_CP874).unwrap()),
                 cp874_ref
             );
         }
     }
     #[test]
     fn cp874_decoding_test() {
-        for (utf8_ref, cp874_ref) in &*CP874_VALID_PAIRS {
+        for &(utf8_ref, cp874_ref) in CP874_VALID_PAIRS {
             assert_eq!(
                 &decode_string_incomplete_table_lossy(cp874_ref, &DECODING_TABLE_CP874),
-                *utf8_ref
+                utf8_ref
             );
             assert_eq!(
                 &*(decode_string_incomplete_table_checked(cp874_ref, &DECODING_TABLE_CP874)
                     .unwrap_or_else(|| panic!(
                         "{cp874_ref:?} (intended for {utf8_ref:?}) is not a valid cp874 bytes."
                     ))),
-                *utf8_ref
+                utf8_ref
             );
         }
     }
     #[test]
     fn cp857_encoding_test() {
-        for (utf8_ref, cp857_ref) in &*CP857_VALID_PAIRS {
+        for &(utf8_ref, cp857_ref) in CP857_VALID_PAIRS {
             assert_eq!(
-                &encode_string_lossy(*utf8_ref, &ENCODING_TABLE_CP857),
+                &encode_string_lossy(utf8_ref, &ENCODING_TABLE_CP857),
                 cp857_ref
             );
             assert_eq!(
-                &(encode_string_checked(*utf8_ref, &ENCODING_TABLE_CP857).unwrap()),
+                &(encode_string_checked(utf8_ref, &ENCODING_TABLE_CP857).unwrap()),
                 cp857_ref
             );
         }
     }
     #[test]
     fn cp857_decoding_test() {
-        for (utf8_ref, cp857_ref) in &*CP857_VALID_PAIRS {
+        for &(utf8_ref, cp857_ref) in CP857_VALID_PAIRS {
             assert_eq!(
                 &decode_string_incomplete_table_lossy(cp857_ref, &DECODING_TABLE_CP857),
-                *utf8_ref
+                utf8_ref
             );
             assert_eq!(
                 &*(decode_string_incomplete_table_checked(cp857_ref, &DECODING_TABLE_CP857)
                     .unwrap_or_else(|| panic!(
                         "{cp857_ref:?} (intended for {utf8_ref:?}) is not a valid cp857 bytes."
                     ))),
-                *utf8_ref
+                utf8_ref
             );
         }
     }
 
     #[test]
     fn windows_codepages_coverage_test() {
-        for cp in &*WINDOWS_USED_CODEPAGES {
+        for cp in WINDOWS_USED_CODEPAGES {
             assert!(
                 ENCODING_TABLE_CP_MAP.get(cp).is_some(),
                 "Encoding table for cp{cp} is not defined",
@@ -817,26 +808,20 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn windows_to_unicode_char_test() {
-        #[allow(clippy::type_complexity)]
-        static WINDOWS_CONVERSION_VALID_TESTCASES: Lazy<Vec<(u16, Vec<(u8, char)>)>> =
-            Lazy::new(|| {
-                vec![
-                    (437, vec![(0x82, 'é'), (0x9D, '¥'), (0xFB, '√')]),
-                    (850, vec![(0xD0, 'ð'), (0xF3, '¾'), (0x9E, '×')]),
-                    (874, vec![(0x80, '€'), (0xDF, '฿'), (0xA1, 'ก')]),
-                ]
-            });
-        static WINDOWS_CONVERSION_INVALID_TESTCASES: Lazy<Vec<(u16, Vec<u8>)>> = Lazy::new(|| {
-            vec![
-                (857, vec![0xE7, 0xF2]),
-                (874, vec![0xDB, 0xDC, 0xDD, 0xDE, 0xFC, 0xFD, 0xFE, 0xFF]),
-            ]
-        });
+        static WINDOWS_CONVERSION_VALID_TESTCASES: &[(u16, &[(u8, char)])] = &[
+            (437, &[(0x82, 'é'), (0x9D, '¥'), (0xFB, '√')]),
+            (850, &[(0xD0, 'ð'), (0xF3, '¾'), (0x9E, '×')]),
+            (874, &[(0x80, '€'), (0xDF, '฿'), (0xA1, 'ก')]),
+        ];
+        static WINDOWS_CONVERSION_INVALID_TESTCASES: &[(u16, &[u8])] = &[
+            (857, &[0xE7, 0xF2]),
+            (874, &[0xDB, 0xDC, 0xDD, 0xDE, 0xFC, 0xFD, 0xFE, 0xFF]),
+        ];
         use itertools::join;
-        for (codepage, testcases) in &*WINDOWS_CONVERSION_VALID_TESTCASES {
+        for &(codepage, testcases) in WINDOWS_CONVERSION_VALID_TESTCASES {
             let result = testcases
                 .iter()
-                .map(|(source, _)| windows_to_unicode_char(*source, *codepage))
+                .map(|(source, _)| windows_to_unicode_char(*source, codepage))
                 .collect::<Vec<Option<char>>>();
             assert!(
                 testcases
@@ -861,10 +846,10 @@ mod tests {
                 )
             );
         }
-        for (codepage, testcases) in &*WINDOWS_CONVERSION_INVALID_TESTCASES {
+        for &(codepage, testcases) in WINDOWS_CONVERSION_INVALID_TESTCASES {
             let result = testcases
                 .iter()
-                .map(|source| windows_to_unicode_char(*source, *codepage))
+                .map(|source| windows_to_unicode_char(*source, codepage))
                 .collect::<Vec<Option<char>>>();
             assert!(
                 result.iter().all(|r| r.is_none()),
@@ -885,7 +870,7 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn compare_to_winapi_decoding_test() {
-        let windows_testing_codepages: Vec<(u16, Option<Vec<std::ops::Range<u8>>>)> = vec![
+        static WINDOWS_TESTING_CODEPAGES: &[(u16, Option<&[std::ops::Range<u8>]>)] = &[
             // Windows is the absolute reference because Unix-like OSes has already been migrated to UTF-8
             (437, None),
             (720, None),
@@ -909,7 +894,7 @@ mod tests {
         use std::borrow::Cow;
         let default_range = vec![(128..255).collect::<Vec<u8>>()];
         use itertools::join;
-        for (codepage, testing_ranges) in &*windows_testing_codepages {
+        for (codepage, testing_ranges) in WINDOWS_TESTING_CODEPAGES {
             let testing_ranges = testing_ranges
                 .as_ref()
                 .map(|v| {
@@ -964,13 +949,13 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn compare_to_winapi_encoding_test() {
-        let windows_testing_codepages: Vec<u16> = vec![
+        static WINDOWS_TESTING_CODEPAGES: &[u16] = &[
             437, 720, 737, 775, 850, 852, 855, 857, 858, 860, 861, 862, 863, 864, 865, 866, 869,
             874,
         ];
 
         use itertools::Itertools;
-        for codepage in &windows_testing_codepages {
+        for codepage in WINDOWS_TESTING_CODEPAGES {
             let table = ENCODING_TABLE_CP_MAP.get(codepage).unwrap();
             assert!(
                 table.entries().all(|(unicode, table_result)| {
