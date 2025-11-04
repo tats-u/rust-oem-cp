@@ -33,13 +33,16 @@ fn generate_tables() -> Result<(), Box<dyn std::error::Error>> {
 
     for (code_page, table) in &code_tables.tables {
         write_decoding(&mut output, *code_page, table)?;
+        writeln!(&mut output)?;
     }
 
     for (code_page, table) in &code_tables.tables {
         write_encoding(&mut output, *code_page, table)?;
+        writeln!(&mut output)?;
     }
 
     write_decoding_table_cp_map(&mut output, &code_tables.tables)?;
+    writeln!(&mut output)?;
     write_encoding_table_cp_map(&mut output, &code_tables.tables)?;
 
     // NOTE: normalizes line endings to `\n` regardless of platform
@@ -130,6 +133,7 @@ fn write_header(dst: &mut impl Write, created: String) -> fmt::Result {
     writeln!(
         dst,
         "//! Code table
+//!
 //! Generated at {created}
 
 #![cfg_attr(rustfmt, rustfmt_skip)]
@@ -157,8 +161,6 @@ fn write_decoding(dst: &mut impl Write, code_page: u16, table: &Table) -> fmt::R
             )?;
         }
     }
-
-    writeln!(dst)?;
 
     Ok(())
 }
@@ -189,7 +191,7 @@ fn write_encoding(dst: &mut impl Write, code_page: u16, table: &Table) -> fmt::R
         }
     }
 
-    write!(
+    writeln!(
         dst,
         "/// Encoding table (Unicode to CP{code_page})
 pub static ENCODING_TABLE_CP{code_page}: OEMCPHashMap<char, u8> = {map};",
@@ -212,12 +214,12 @@ fn write_decoding_table_cp_map(dst: &mut impl Write, tables: &[(u16, Table)]) ->
 
     writeln!(
         dst,
-        r#"/// map from codepage to decoding table
+        r#"/// Map from codepage to decoding table
 ///
-/// `.get` returns `code_table_type::{{Complete,Incomplete}}`.
+/// `.get` returns `code_table_type::{{Complete,Incomplete}}`:
 ///
-/// * `Complete`: the decoding table doesn't have undefined mapping.
-/// * `Incomplete`:  it have some undefined mapping.
+/// * `Complete`: the decoding table doesn't have any undefined mappings.
+/// * `Incomplete`: it has some undefined mappings.
 ///
 /// This enumerate provides methods `decode_string_lossy` and `decode_string_checked`.
 /// The following examples show the use of them.  `if let Some(decoder) = *snip* decoder.decode_string_*snip*` is convenient for practical use.
@@ -253,7 +255,7 @@ fn write_encoding_table_cp_map(dst: &mut impl Write, tables: &[(u16, Table)]) ->
 
     writeln!(
         dst,
-        r#"/// map from codepage to encoding table
+        r#"/// Map from codepage to encoding table
 ///
 /// # Examples
 ///

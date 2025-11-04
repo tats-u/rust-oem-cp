@@ -1,4 +1,5 @@
 //! Code table
+//!
 //! Generated at 2020-09-22T01:23:23+00:00
 
 #![cfg_attr(rustfmt, rustfmt_skip)]
@@ -222,7 +223,9 @@ pub static ENCODING_TABLE_CP437: OEMCPHashMap<char, u8> = ::phf::Map {
         ('╫', 215),
         ('┼', 197),
     ],
-};/// Encoding table (Unicode to CP720)
+};
+
+/// Encoding table (Unicode to CP720)
 pub static ENCODING_TABLE_CP720: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -383,7 +386,9 @@ pub static ENCODING_TABLE_CP720: OEMCPHashMap<char, u8> = ::phf::Map {
         ('¤', 148),
         ('ر', 169),
     ],
-};/// Encoding table (Unicode to CP737)
+};
+
+/// Encoding table (Unicode to CP737)
 pub static ENCODING_TABLE_CP737: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 7485420634051515786,
     disps: &[
@@ -544,7 +549,9 @@ pub static ENCODING_TABLE_CP737: OEMCPHashMap<char, u8> = ::phf::Map {
         ('┌', 218),
         ('█', 219),
     ],
-};/// Encoding table (Unicode to CP775)
+};
+
+/// Encoding table (Unicode to CP775)
 pub static ENCODING_TABLE_CP775: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -705,7 +712,9 @@ pub static ENCODING_TABLE_CP775: OEMCPHashMap<char, u8> = ::phf::Map {
         ('Ł', 173),
         ('▀', 223),
     ],
-};/// Encoding table (Unicode to CP850)
+};
+
+/// Encoding table (Unicode to CP850)
 pub static ENCODING_TABLE_CP850: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 10121458955350035957,
     disps: &[
@@ -866,7 +875,9 @@ pub static ENCODING_TABLE_CP850: OEMCPHashMap<char, u8> = ::phf::Map {
         ('ø', 155),
         ('Ç', 128),
     ],
-};/// Encoding table (Unicode to CP852)
+};
+
+/// Encoding table (Unicode to CP852)
 pub static ENCODING_TABLE_CP852: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -1027,7 +1038,9 @@ pub static ENCODING_TABLE_CP852: OEMCPHashMap<char, u8> = ::phf::Map {
         ('á', 160),
         ('╗', 187),
     ],
-};/// Encoding table (Unicode to CP855)
+};
+
+/// Encoding table (Unicode to CP855)
 pub static ENCODING_TABLE_CP855: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 14108922650502679131,
     disps: &[
@@ -1188,7 +1201,9 @@ pub static ENCODING_TABLE_CP855: OEMCPHashMap<char, u8> = ::phf::Map {
         ('Ѕ', 137),
         ('Ф', 171),
     ],
-};/// Encoding table (Unicode to CP857)
+};
+
+/// Encoding table (Unicode to CP857)
 pub static ENCODING_TABLE_CP857: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -1345,7 +1360,9 @@ pub static ENCODING_TABLE_CP857: OEMCPHashMap<char, u8> = ::phf::Map {
         ('ô', 147),
         ('▀', 223),
     ],
-};/// Encoding table (Unicode to CP858)
+};
+
+/// Encoding table (Unicode to CP858)
 pub static ENCODING_TABLE_CP858: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -1506,7 +1523,9 @@ pub static ENCODING_TABLE_CP858: OEMCPHashMap<char, u8> = ::phf::Map {
         ('®', 169),
         ('\u{a0}', 255),
     ],
-};/// Encoding table (Unicode to CP860)
+};
+
+/// Encoding table (Unicode to CP860)
 pub static ENCODING_TABLE_CP860: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -1667,7 +1686,9 @@ pub static ENCODING_TABLE_CP860: OEMCPHashMap<char, u8> = ::phf::Map {
         ('τ', 231),
         ('Á', 134),
     ],
-};/// Encoding table (Unicode to CP861)
+};
+
+/// Encoding table (Unicode to CP861)
 pub static ENCODING_TABLE_CP861: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -1828,7 +1849,9 @@ pub static ENCODING_TABLE_CP861: OEMCPHashMap<char, u8> = ::phf::Map {
         ('┘', 217),
         ('ⁿ', 252),
     ],
-};/// Encoding table (Unicode to CP862)
+};
+
+/// Encoding table (Unicode to CP862)
 pub static ENCODING_TABLE_CP862: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 15467950696543387533,
     disps: &[
@@ -1989,7 +2012,9 @@ pub static ENCODING_TABLE_CP862: OEMCPHashMap<char, u8> = ::phf::Map {
         ('╓', 214),
         ('σ', 229),
     ],
-};/// Encoding table (Unicode to CP863)
+};
+
+/// Encoding table (Unicode to CP863)
 pub static ENCODING_TABLE_CP863: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -2150,7 +2175,9 @@ pub static ENCODING_TABLE_CP863: OEMCPHashMap<char, u8> = ::phf::Map {
         ('Σ', 228),
         ('Ë', 148),
     ],
-};/// Encoding table (Unicode to CP864)
+};
+
+/// Encoding table (Unicode to CP864)
 pub static ENCODING_TABLE_CP864: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -2307,7 +2334,9 @@ pub static ENCODING_TABLE_CP864: OEMCPHashMap<char, u8> = ::phf::Map {
         ('ﻬ', 244),
         ('\u{9f}', 159),
     ],
-};/// Encoding table (Unicode to CP865)
+};
+
+/// Encoding table (Unicode to CP865)
 pub static ENCODING_TABLE_CP865: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -2468,7 +2497,9 @@ pub static ENCODING_TABLE_CP865: OEMCPHashMap<char, u8> = ::phf::Map {
         ('ª', 166),
         ('╤', 209),
     ],
-};/// Encoding table (Unicode to CP866)
+};
+
+/// Encoding table (Unicode to CP866)
 pub static ENCODING_TABLE_CP866: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -2629,7 +2660,9 @@ pub static ENCODING_TABLE_CP866: OEMCPHashMap<char, u8> = ::phf::Map {
         ('╖', 183),
         ('с', 225),
     ],
-};/// Encoding table (Unicode to CP869)
+};
+
+/// Encoding table (Unicode to CP869)
 pub static ENCODING_TABLE_CP869: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 15467950696543387533,
     disps: &[
@@ -2790,7 +2823,9 @@ pub static ENCODING_TABLE_CP869: OEMCPHashMap<char, u8> = ::phf::Map {
         ('ε', 222),
         ('°', 248),
     ],
-};/// Encoding table (Unicode to CP874)
+};
+
+/// Encoding table (Unicode to CP874)
 pub static ENCODING_TABLE_CP874: OEMCPHashMap<char, u8> = ::phf::Map {
     key: 12913932095322966823,
     disps: &[
@@ -2941,12 +2976,14 @@ pub static ENCODING_TABLE_CP874: OEMCPHashMap<char, u8> = ::phf::Map {
         ('\u{9d}', 157),
         ('\u{e49}', 233),
     ],
-};/// map from codepage to decoding table
+};
+
+/// Map from codepage to decoding table
 ///
-/// `.get` returns `code_table_type::{Complete,Incomplete}`.
+/// `.get` returns `code_table_type::{Complete,Incomplete}`:
 ///
-/// * `Complete`: the decoding table doesn't have undefined mapping.
-/// * `Incomplete`:  it have some undefined mapping.
+/// * `Complete`: the decoding table doesn't have any undefined mappings.
+/// * `Incomplete`: it has some undefined mappings.
 ///
 /// This enumerate provides methods `decode_string_lossy` and `decode_string_checked`.
 /// The following examples show the use of them.  `if let Some(decoder) = *snip* decoder.decode_string_*snip*` is convenient for practical use.
@@ -2995,7 +3032,8 @@ pub static DECODING_TABLE_CP_MAP: OEMCPHashMap<u16, TableType> = ::phf::Map {
         (852, Complete(&DECODING_TABLE_CP852)),
     ],
 };
-/// map from codepage to encoding table
+
+/// Map from codepage to encoding table
 ///
 /// # Examples
 ///
