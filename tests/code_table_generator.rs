@@ -33,16 +33,17 @@ fn generate_tables() -> Result<(), Box<dyn std::error::Error>> {
 
     for (code_page, table) in &code_tables.tables {
         write_decoding(&mut output, *code_page, table)?;
+        writeln!(&mut output)?;
     }
 
     for (code_page, table) in &code_tables.tables {
         write_encoding(&mut output, *code_page, table)?;
+        writeln!(&mut output)?;
     }
 
     write_decoding_table_cp_map(&mut output, &code_tables.tables)?;
+    writeln!(&mut output)?;
     write_encoding_table_cp_map(&mut output, &code_tables.tables)?;
-
-    write_footer(&mut output)?;
 
     // NOTE: normalizes line endings to `\n` regardless of platform
     output = output.lines().collect::<Vec<_>>().join("\n");
@@ -128,12 +129,14 @@ fn parse_code_tables() -> io::Result<CodeTables> {
     Ok(CodeTables { created, tables })
 }
 
-fn write_header(mut dst: impl Write, created: String) -> fmt::Result {
+fn write_header(dst: &mut impl Write, created: String) -> fmt::Result {
     writeln!(
-        &mut dst,
-        "/// Code table
-/// Generated at {created}
-pub mod code_table {{
+        dst,
+        "//! Code table
+//!
+//! Generated at {created}
+
+#![cfg_attr(rustfmt, rustfmt_skip)]
 
 use super::code_table_type::TableType;
 use super::OEMCPHashMap;
@@ -142,29 +145,44 @@ use TableType::*;
     )
 }
 
-fn write_decoding(mut dst: impl Write, code_page: u16, table: &Table) -> fmt::Result {
-    writeln!(&mut dst, "/// Decoding table (CP{code_page} to Unicode)")?;
+fn write_decoding(dst: &mut impl Write, code_page: u16, table: &Table) -> fmt::Result {
+    struct ChunkedSlice<'a, T>(&'a [T], usize);
+    impl<T: fmt::Debug> fmt::Debug for ChunkedSlice<'_, T> {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            writeln!(f, "[")?;
+            for chunk in self.0.chunks(self.1) {
+                write!(f, "   ")?;
+                for value in chunk {
+                    write!(f, " {value:?},")?;
+                }
+                writeln!(f)?;
+            }
+            write!(f, "]")
+        }
+    }
+
+    writeln!(dst, "/// Decoding table (CP{code_page} to Unicode)")?;
     match table {
         Table::Complete(table) => {
             writeln!(
-                &mut dst,
-                "pub static DECODING_TABLE_CP{code_page}: [char; 128] = {table:?};"
+                dst,
+                "pub static DECODING_TABLE_CP{code_page}: [char; 128] = {:?};",
+                ChunkedSlice(table, 16)
             )?;
         }
         Table::Incomplete(table) => {
             writeln!(
-                &mut dst,
-                "pub static DECODING_TABLE_CP{code_page}: [Option<char>; 128] = {table:?};"
+                dst,
+                "pub static DECODING_TABLE_CP{code_page}: [Option<char>; 128] = {:?};",
+                ChunkedSlice(table, 8)
             )?;
         }
     }
 
-    writeln!(&mut dst)?;
-
     Ok(())
 }
 
-fn write_encoding(mut dst: impl Write, code_page: u16, table: &Table) -> fmt::Result {
+fn write_encoding(dst: &mut impl Write, code_page: u16, table: &Table) -> fmt::Result {
     let mut map = phf_codegen::Map::new();
 
     match table {
@@ -190,8 +208,8 @@ fn write_encoding(mut dst: impl Write, code_page: u16, table: &Table) -> fmt::Re
         }
     }
 
-    write!(
-        &mut dst,
+    writeln!(
+        dst,
         "/// Encoding table (Unicode to CP{code_page})
 pub static ENCODING_TABLE_CP{code_page}: OEMCPHashMap<char, u8> = {map};",
         map = map.build()
@@ -200,7 +218,7 @@ pub static ENCODING_TABLE_CP{code_page}: OEMCPHashMap<char, u8> = {map};",
     Ok(())
 }
 
-fn write_decoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> fmt::Result {
+fn write_decoding_table_cp_map(dst: &mut impl Write, tables: &[(u16, Table)]) -> fmt::Result {
     let mut map = phf_codegen::Map::new();
 
     for (code_page, table) in tables {
@@ -212,13 +230,13 @@ fn write_decoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> 
     }
 
     writeln!(
-        &mut dst,
-        r#"/// map from codepage to decoding table
+        dst,
+        r#"/// Map from codepage to decoding table
 ///
-/// `.get` returns `code_table_type::{{Complete,Incomplete}}`.
+/// `.get` returns `code_table_type::{{Complete,Incomplete}}`:
 ///
-/// * `Complete`: the decoding table doesn't have undefined mapping.
-/// * `Incomplete`:  it have some undefined mapping.
+/// * `Complete`: the decoding table doesn't have any undefined mappings.
+/// * `Incomplete`: it has some undefined mappings.
 ///
 /// This enumerate provides methods `decode_string_lossy` and `decode_string_checked`.
 /// The following examples show the use of them.  `if let Some(decoder) = *snip* decoder.decode_string_*snip*` is convenient for practical use.
@@ -245,7 +263,7 @@ pub static DECODING_TABLE_CP_MAP: OEMCPHashMap<u16, TableType> = {map};"#,
     Ok(())
 }
 
-fn write_encoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> fmt::Result {
+fn write_encoding_table_cp_map(dst: &mut impl Write, tables: &[(u16, Table)]) -> fmt::Result {
     let mut map = phf_codegen::Map::new();
 
     for (code_page, _table) in tables {
@@ -253,8 +271,8 @@ fn write_encoding_table_cp_map(mut dst: impl Write, tables: &[(u16, Table)]) -> 
     }
 
     writeln!(
-        &mut dst,
-        r#"/// map from codepage to encoding table
+        dst,
+        r#"/// Map from codepage to encoding table
 ///
 /// # Examples
 ///
@@ -278,8 +296,4 @@ pub static ENCODING_TABLE_CP_MAP: OEMCPHashMap<u16, &'static OEMCPHashMap<char, 
     )?;
 
     Ok(())
-}
-
-fn write_footer(mut dst: impl Write) -> fmt::Result {
-    writeln!(&mut dst, "}}")
 }
