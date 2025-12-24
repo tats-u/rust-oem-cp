@@ -1,6 +1,6 @@
 [package]
 name = "oem_cp"
-version = "2.1.1"
+version = "2.1.2"
 authors = ["Tatsunori Uchino <tats.u@live.jp>"]
 edition = "2021"
 categories = ["encoding"]
